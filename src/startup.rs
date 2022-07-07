@@ -15,10 +15,13 @@ pub struct Application {
 
 impl Application {
     pub async fn build(configuration: Settings) -> Result<Self> {
-        let address = format!("{}:{}", configuration.host, configuration.port);
+        let address = format!(
+            "{}:{}",
+            configuration.application.host, configuration.application.port
+        );
         let listener = TcpListener::bind(&address)?;
         let port = listener.local_addr()?.port();
-        let server = run(listener, configuration.base_url).await?;
+        let server = run(listener, configuration.application.base_url).await?;
         Ok(Self { port, server })
     }
 

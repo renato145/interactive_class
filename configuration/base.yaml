@@ -1,1 +1,2 @@
-port: 8000
+application:
+  port: 8000

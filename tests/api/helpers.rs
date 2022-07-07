@@ -44,7 +44,7 @@ pub async fn spawn_app() -> TestApp {
     let configuration = {
         let mut c = get_configuration().expect("Failed to read configuration.");
         // Port 0 give us a random available port
-        c.port = 0;
+        c.application.port = 0;
         c
     };
 
