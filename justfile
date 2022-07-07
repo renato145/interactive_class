@@ -4,6 +4,9 @@ _default:
 dev:
   RUST_LOG=debug cargo run | bunyan
 
+watch_dev:
+  RUST_LOG=debug cargo watch --clear -x "run | bunyan"
+
 checks:
   #!/usr/bin/env bash
   set -x
