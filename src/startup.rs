@@ -1,6 +1,6 @@
 use crate::{
     configuration::Settings,
-    routes::{cups, health_check_route},
+    routes::{health_check_route, ws},
 };
 use actix_web::{
     dev::Server,
@@ -46,7 +46,7 @@ pub async fn run(listener: TcpListener, base_url: String) -> Result<Server> {
             .wrap(TracingLogger::default())
             // .route("/", web::get().to(home))
             .route("/health_check", web::get().to(health_check_route))
-            .route("/cups", web::get().to(cups))
+            .route("/cups", web::get().to(ws))
             // .service(actix_files::Files::new("/static", "./static"))
             // .default_service(web::get().to(not_found))
             .app_data(base_url.clone())

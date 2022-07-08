@@ -21,8 +21,8 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for CupsSession {
     }
 }
 
-#[tracing::instrument(name = "Starting cups web socket", skip_all)]
-pub async fn cups(req: HttpRequest, stream: web::Payload) -> Result<HttpResponse, Error> {
+#[tracing::instrument(name = "Starting web socket", skip_all)]
+pub async fn ws(req: HttpRequest, stream: web::Payload) -> Result<HttpResponse, Error> {
     let resp = ws::start(CupsSession {}, &req, stream);
     println!("{:?}", resp);
     resp
