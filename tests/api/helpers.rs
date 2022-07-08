@@ -1,3 +1,4 @@
+use awc::Client;
 use interactive_class::{
     configuration::get_configuration,
     telemetry::{get_subscriber, init_subscriber},
@@ -5,6 +6,7 @@ use interactive_class::{
 };
 use once_cell::sync::Lazy;
 use reqwest::Response;
+use std::time::Duration;
 
 // Ensure that 'tracing' stack is only initialized once using `once_cell`
 static TRACING: Lazy<()> = Lazy::new(|| {
@@ -34,6 +36,15 @@ impl TestApp {
             .await
             .expect("Failed to execute request.")
     }
+
+    pub async fn get_ws_connection(&self) -> actix_codec::Framed<awc::BoxedSocket, awc::ws::Codec> {
+        let (_response, connection) = Client::new()
+            .ws(format!("{}/ws", self.address))
+            .connect()
+            .await
+            .expect("Failed to connect to websocket.");
+        connection
+    }
 }
 
 pub async fn spawn_app() -> TestApp {
@@ -45,6 +56,8 @@ pub async fn spawn_app() -> TestApp {
         let mut c = get_configuration().expect("Failed to read configuration.");
         // Port 0 give us a random available port
         c.application.port = 0;
+        c.websocket.heartbeat_interval = Duration::from_millis(50);
+        c.websocket.client_timeout = Duration::from_millis(250);
         c
     };
 

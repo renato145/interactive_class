@@ -1,10 +1,12 @@
 use config::Config;
 use serde::Deserialize;
 use serde_aux::field_attributes::deserialize_number_from_string;
-
+use serde_with::{serde_as, DurationMilliSeconds};
+use std::time::Duration;
 #[derive(Clone, Deserialize)]
 pub struct Settings {
     pub application: ApplicationSettings,
+    pub websocket: WSSettings,
 }
 
 #[derive(Clone, Deserialize)]
@@ -13,6 +15,17 @@ pub struct ApplicationSettings {
     pub port: u16,
     pub host: String,
     pub base_url: String,
+}
+
+#[serde_as]
+#[derive(Clone, Deserialize)]
+pub struct WSSettings {
+    /// In milliseconds
+    #[serde_as(as = "DurationMilliSeconds<u64>")]
+    pub heartbeat_interval: Duration,
+    /// In milliseconds
+    #[serde_as(as = "DurationMilliSeconds<u64>")]
+    pub client_timeout: Duration,
 }
 
 pub fn get_configuration() -> Result<Settings, config::ConfigError> {

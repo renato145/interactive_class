@@ -1,12 +1,8 @@
 use crate::{
-    configuration::Settings,
+    configuration::{Settings, WSSettings},
     routes::{health_check_route, ws},
 };
-use actix_web::{
-    dev::Server,
-    web::{self, Data},
-    App, HttpServer,
-};
+use actix_web::{dev::Server, web, App, HttpServer};
 use anyhow::Result;
 use std::net::TcpListener;
 use tracing_actix_web::TracingLogger;
@@ -24,7 +20,12 @@ impl Application {
         );
         let listener = TcpListener::bind(&address)?;
         let port = listener.local_addr()?.port();
-        let server = run(listener, configuration.application.base_url).await?;
+        let server = run(
+            listener,
+            configuration.application.base_url,
+            configuration.websocket,
+        )
+        .await?;
         Ok(Self { port, server })
     }
 
@@ -39,17 +40,23 @@ impl Application {
 
 pub struct ApplicationBaseUrl(pub String);
 
-pub async fn run(listener: TcpListener, base_url: String) -> Result<Server> {
-    let base_url = Data::new(ApplicationBaseUrl(base_url));
+pub async fn run(
+    listener: TcpListener,
+    base_url: String,
+    websocket_settings: WSSettings,
+) -> Result<Server> {
+    let base_url = web::Data::new(ApplicationBaseUrl(base_url));
+    let websocket_settings = web::Data::new(websocket_settings);
     let server = HttpServer::new(move || {
         App::new()
             .wrap(TracingLogger::default())
             // .route("/", web::get().to(home))
             .route("/health_check", web::get().to(health_check_route))
-            .route("/cups", web::get().to(ws))
+            .route("/ws", web::get().to(ws))
             // .service(actix_files::Files::new("/static", "./static"))
             // .default_service(web::get().to(not_found))
             .app_data(base_url.clone())
+            .app_data(websocket_settings.clone())
     })
     .listen(listener)?
     .run();

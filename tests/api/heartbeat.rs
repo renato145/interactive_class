@@ -1,20 +1,13 @@
 use crate::helpers::spawn_app;
 use actix_web_actors::ws;
-use awc::Client;
 use futures::{SinkExt, StreamExt};
 use std::time::Duration;
 
-#[tokio::test]
+#[actix_rt::test]
 async fn client_receives_heartbeat_every_x_milliseconds() {
     // Arrange
     let app = spawn_app().await;
-
-    let (_response, mut connection) = Client::new()
-        .ws(format!("{}/cups/", app.address))
-        .connect()
-        .await
-        .expect("Failed to connect to websocket.");
-
+    let mut connection = app.get_ws_connection().await;
     let sleep = tokio::time::sleep(Duration::from_millis(250));
     tokio::pin!(sleep);
     let mut count = 0;
@@ -34,20 +27,14 @@ async fn client_receives_heartbeat_every_x_milliseconds() {
     }
 
     // Assert
-    assert!(count >= 0, "Did not receive any heartbeat.")
+    assert!(dbg!(count) >= 0, "Did not receive any heartbeat.")
 }
 
-#[tokio::test]
+#[actix_rt::test]
 async fn client_disconnects_after_x_milliseconds() {
     // Arrange
     let app = spawn_app().await;
-
-    let (_response, mut connection) = Client::new()
-        .ws(format!("{}/ws/", app.address))
-        .connect()
-        .await
-        .expect("Failed to connect to websocket.");
-
+    let mut connection = app.get_ws_connection().await;
     let sleep = tokio::time::sleep(Duration::from_millis(500));
     tokio::pin!(sleep);
     let mut disconnected = false;
@@ -73,17 +60,11 @@ async fn client_disconnects_after_x_milliseconds() {
     assert!(disconnected, "Server did not disconnect.")
 }
 
-#[tokio::test]
+#[actix_rt::test]
 async fn client_stays_alive_if_responds_pings() {
     // Arrange
     let app = spawn_app().await;
-
-    let (_response, mut connection) = Client::new()
-        .ws(format!("{}/ws/", app.address))
-        .connect()
-        .await
-        .expect("Failed to connect to websocket.");
-
+    let mut connection = app.get_ws_connection().await;
     let sleep = tokio::time::sleep(Duration::from_millis(500));
     tokio::pin!(sleep);
     let mut disconnected = false;
