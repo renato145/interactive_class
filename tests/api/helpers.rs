@@ -45,6 +45,10 @@ impl TestApp {
             .expect("Failed to connect to websocket.");
         connection
     }
+
+    pub async fn get_cup_rooms(&self) -> reqwest::Response {
+        self.get_route("cups").await
+    }
 }
 
 pub async fn spawn_app() -> TestApp {
