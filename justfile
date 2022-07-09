@@ -16,6 +16,9 @@ checks:
   cargo fmt --all -- --check
 
 tests:
+  cargo test
+
+tests_logs:
   TEST_LOG=enabled cargo test | bunyan
 
 run:
