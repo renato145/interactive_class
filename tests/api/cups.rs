@@ -1,4 +1,5 @@
 use crate::helpers::spawn_app;
+use serde_json::json;
 
 #[actix_rt::test]
 async fn teacher_can_get_cup_rooms() {
@@ -6,10 +7,15 @@ async fn teacher_can_get_cup_rooms() {
     let app = spawn_app().await;
 
     // Act
-    let response = app.get_cup_rooms().await.error_for_status().unwrap();
-    println!("====> {:?}", response);
-    // response should be json
+    let cups_info: serde_json::Value = app
+        .get_cup_rooms()
+        .await
+        .error_for_status()
+        .unwrap()
+        .json()
+        .await
+        .unwrap();
 
     // Assert
-    // validate that it return 0 rooms
+    assert_eq!(cups_info["rooms"], json!(0));
 }
