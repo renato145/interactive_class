@@ -1,1 +1,1 @@
-<div class="text-4xl p-4">Main content here :)</div>
+<div class="p-4 text-4xl">Main content here :)</div>
