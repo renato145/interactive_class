@@ -1,0 +1,30 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply text-gray-900 antialiased;
+  }
+  h1 {
+    @apply text-4xl;
+  }
+  h2 {
+    @apply text-3xl;
+  }
+  h3 {
+    @apply text-2xl;
+  }
+  h4 {
+    @apply text-xl;
+  }
+  a {
+    @apply text-sky-600 hover:text-sky-800;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply rounded bg-blue-600 px-2 py-1 text-white transition duration-150 hover:bg-blue-400 focus:outline-none focus:ring active:bg-blue-800;
+  }
+}
