@@ -5,7 +5,7 @@ mod session;
 // mod server;
 
 use self::session::WSSession;
-use crate::configuration::WSSettings;
+use crate::{configuration::WSSettings, state::AppState};
 use actix_web::{web, Error, HttpRequest, HttpResponse};
 use actix_web_actors::ws;
 
@@ -14,6 +14,11 @@ pub async fn ws(
     req: HttpRequest,
     stream: web::Payload,
     settings: web::Data<WSSettings>,
+    state: web::Data<AppState>,
 ) -> Result<HttpResponse, Error> {
-    ws::start(WSSession::new(settings.as_ref().clone()), &req, stream)
+    ws::start(
+        WSSession::new(state, settings.as_ref().clone()),
+        &req,
+        stream,
+    )
 }

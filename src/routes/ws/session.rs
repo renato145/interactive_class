@@ -2,19 +2,22 @@ use super::{
     message::{ClientMessage, WSMessage, WSTask},
     ws,
 };
-use crate::configuration::WSSettings;
+use crate::{configuration::WSSettings, state::AppState};
 use actix::{Actor, ActorContext, AsyncContext, Handler, StreamHandler};
+use actix_web::web;
 use std::{str::FromStr, time::Instant};
 
 pub struct WSSession {
     hb: Instant,
+    state: web::Data<AppState>,
     settings: WSSettings,
 }
 
 impl WSSession {
-    pub fn new(settings: WSSettings) -> Self {
+    pub fn new(state: web::Data<AppState>, settings: WSSettings) -> Self {
         Self {
             hb: Instant::now(),
+            state,
             settings,
         }
     }
@@ -39,13 +42,20 @@ impl WSSession {
         let addr = ctx.address();
         match WSMessage::from_str(msg) {
             Ok(msg) => match msg.task {
-                WSTask::RoomConnect => todo!(),
+                WSTask::RoomConnect => addr.do_send(self.room_connect()),
             },
             Err(e) => {
                 tracing::error!("{:?}", e);
                 addr.do_send(e.into());
             }
         }
+        println!("{:?}", self.state);
+    }
+
+    fn room_connect(&self) -> ClientMessage {
+        let mut rooms = self.state.rooms.lock().unwrap();
+        rooms.push("Something".to_string());
+        ClientMessage::success()
     }
 }
 

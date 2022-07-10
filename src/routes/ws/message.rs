@@ -37,6 +37,15 @@ pub struct ClientMessage {
     pub payload: serde_json::Value,
 }
 
+impl ClientMessage {
+    pub fn success() -> Self {
+        Self {
+            success: true,
+            payload: serde_json::Value::Null,
+        }
+    }
+}
+
 impl From<WSError> for ClientMessage {
     fn from(e: WSError) -> Self {
         Self {
