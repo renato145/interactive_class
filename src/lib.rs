@@ -1,12 +1,10 @@
 pub mod configuration;
-pub mod domain;
 pub mod routes;
 pub mod startup;
 pub mod telemetry;
 
 pub use startup::*;
 
-#[allow(unused)]
 fn error_chain_fmt(
     e: &impl std::error::Error,
     f: &mut std::fmt::Formatter<'_>,

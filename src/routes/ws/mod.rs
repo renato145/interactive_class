@@ -1,10 +1,22 @@
 //! Inspired by cups.fast.ai
+mod error;
+mod message;
 
 use crate::configuration::WSSettings;
 use actix::{Actor, ActorContext, AsyncContext, StreamHandler};
 use actix_web::{web, Error, HttpRequest, HttpResponse};
 use actix_web_actors::ws;
-use std::time::Instant;
+use message::WSMessage;
+use std::{str::FromStr, time::Instant};
+
+#[tracing::instrument(name = "Starting web socket", skip_all)]
+pub async fn ws(
+    req: HttpRequest,
+    stream: web::Payload,
+    settings: web::Data<WSSettings>,
+) -> Result<HttpResponse, Error> {
+    ws::start(WSSession::new(settings.as_ref().clone()), &req, stream)
+}
 
 struct WSSession {
     hb: Instant,
@@ -34,6 +46,20 @@ impl WSSession {
             ctx.ping(b"");
         });
     }
+
+    #[tracing::instrument(skip(self, ctx))]
+    fn process_message(&self, msg: &str, ctx: &mut ws::WebsocketContext<WSSession>) {
+        let addr = ctx.address();
+        match WSMessage::from_str(msg) {
+            Ok(msg) => match msg.task {
+                message::WSTask::RoomConnect => todo!(),
+            },
+            Err(e) => {
+                tracing::error!("{:?}", e);
+                addr.do_send(e.into());
+            }
+        }
+    }
 }
 
 impl Actor for WSSession {
@@ -45,7 +71,6 @@ impl Actor for WSSession {
 }
 
 impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WSSession {
-    // fn handle(&mut self, item: Result<ws::Message, ws::ProtocolError>, ctx: &mut Self::Context) {
     #[tracing::instrument(
         name = "Handling websocket message",
         skip_all,
@@ -70,7 +95,7 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WSSession {
             ws::Message::Pong(_) => {
                 self.hb = Instant::now();
             }
-            ws::Message::Text(text) => ctx.text(text),
+            ws::Message::Text(text) => self.process_message(text.trim(), ctx),
             ws::Message::Close(reason) => {
                 ctx.close(reason);
                 ctx.stop();
@@ -81,13 +106,4 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WSSession {
             }
         }
     }
-}
-
-#[tracing::instrument(name = "Starting web socket", skip_all)]
-pub async fn ws(
-    req: HttpRequest,
-    stream: web::Payload,
-    settings: web::Data<WSSettings>,
-) -> Result<HttpResponse, Error> {
-    ws::start(WSSession::new(settings.as_ref().clone()), &req, stream)
 }
