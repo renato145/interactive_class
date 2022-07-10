@@ -1,11 +1,28 @@
 <script lang="ts">
   import type { CupsInfo } from "bindings/CupsInfo";
+  import type { CreateRoom } from "bindings/CreateRoom";
 
   const getCups = async () => {
     const d = await fetch("/cups").then((response) => response.json());
     return d as CupsInfo;
   };
   let cups = getCups();
+
+  let res;
+  const createNewRoom = async (e) => {
+    const formData = new FormData(e.target);
+    const data: CreateRoom = { new_room: formData.get("new_room") as string };
+    const d = await fetch("/cups/create_room", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    }).then((response) => response.json());
+
+    console.log(d);
+    res = JSON.stringify(d);
+  };
 </script>
 
 <div class="container mx-auto mt-4 rounded bg-slate-50 p-4">

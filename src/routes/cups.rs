@@ -1,3 +1,4 @@
+use crate::state::AppState;
 use actix_web::{get, web};
 use serde::{Deserialize, Serialize};
 use ts_rs::TS;
@@ -11,6 +12,22 @@ pub struct CupsInfo {
 #[tracing::instrument()]
 pub async fn get_cups() -> web::Json<CupsInfo> {
     web::Json(CupsInfo { rooms: 0 })
+}
+
+#[derive(Deserialize, TS)]
+#[ts(export, export_to = "frontend/bindings/")]
+pub struct CreateRoom {
+    new_room: String,
+}
+
+#[tracing::instrument(skip_all)]
+pub async fn create_room(
+    form: web::Json<CreateRoom>,
+    state: web::Data<AppState>,
+) -> web::Json<String> {
+    let mut rooms = state.rooms.lock().unwrap();
+    rooms.push(form.into_inner().new_room);
+    web::Json("Created".to_string())
 }
 
 #[derive(Debug, Default, Deserialize, Serialize, PartialEq, Eq, TS)]
