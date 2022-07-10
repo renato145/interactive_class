@@ -15,9 +15,21 @@
     {#await cups}
       <p>loading...</p>
     {:then data}
-      <p class="text-3xl"><span class="font-bold">Rooms:</span> {data.rooms}</p>
+      <p class="text-3xl">{data.rooms} Rooms</p>
     {:catch error}
       <p>An error occurred: {error}</p>
     {/await}
   </div>
+
+  <form class="mt-4" on:submit|preventDefault={createNewRoom}>
+    <input
+      type="text"
+      id="new_room"
+      name="new_room"
+      placeholder="New room name"
+      required
+    />
+    <button class="btn" type="submit">Create room</button>
+  </form>
+  {res}
 </div>
