@@ -47,6 +47,7 @@ pub async fn run(
 ) -> Result<Server> {
     let base_url = web::Data::new(ApplicationBaseUrl(base_url));
     let websocket_settings = web::Data::new(websocket_settings);
+    // let app_state = web::Data::new(AppState::default());
     let server = HttpServer::new(move || {
         App::new()
             .wrap(TracingLogger::default())
@@ -62,6 +63,7 @@ pub async fn run(
             // .default_service(web::get().to(not_found))
             .app_data(base_url.clone())
             .app_data(websocket_settings.clone())
+        // .app_data(app_state.clone())
     })
     .listen(listener)?
     .run();

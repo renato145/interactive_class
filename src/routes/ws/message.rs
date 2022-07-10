@@ -1,7 +1,7 @@
 //! Web socket messages
 
-use super::{error::WSError, WSSession};
-use actix::{Handler, Message};
+use super::error::WSError;
+use actix::Message;
 use anyhow::Context;
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
@@ -42,19 +42,6 @@ impl From<WSError> for ClientMessage {
         Self {
             success: false,
             payload: e.to_string().into(),
-        }
-    }
-}
-
-impl Handler<ClientMessage> for WSSession {
-    type Result = ();
-
-    fn handle(&mut self, msg: ClientMessage, ctx: &mut Self::Context) -> Self::Result {
-        match serde_json::to_string(&msg) {
-            Ok(msg) => ctx.text(msg),
-            Err(e) => {
-                tracing::error!(error.cause_chain = ?e, error.message = %e, "Failed to send ClientMessage.")
-            }
         }
     }
 }
