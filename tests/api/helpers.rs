@@ -1,6 +1,7 @@
 use awc::Client;
 use interactive_class::{
     configuration::get_configuration,
+    routes::{CupsInfo, RoomInfo},
     telemetry::{get_subscriber, init_subscriber},
     Application,
 };
@@ -45,8 +46,24 @@ impl TestApp {
             .expect("Failed to execute request.")
     }
 
-    pub async fn get_cups_info(&self) -> reqwest::Response {
-        self.get_route("cups").await
+    pub async fn get_cups_info(&self) -> CupsInfo {
+        self.get_route("cups")
+            .await
+            .error_for_status()
+            .unwrap()
+            .json()
+            .await
+            .unwrap()
+    }
+
+    pub async fn get_room_info(&self, room_name: &str) -> RoomInfo {
+        self.get_route(&format!("cups/{room_name}"))
+            .await
+            .error_for_status()
+            .unwrap()
+            .json()
+            .await
+            .unwrap()
     }
 }
 
