@@ -1,9 +1,9 @@
 <script lang="ts">
-  import type { TCups } from "./types";
+  import type { CupsInfo } from "bindings/CupsInfo";
 
   const getCups = async () => {
     const d = await fetch("/cups").then((response) => response.json());
-    return d as TCups;
+    return d as CupsInfo;
   };
   let cups = getCups();
 </script>

@@ -1,7 +1,9 @@
 use actix_web::web;
 use serde::Serialize;
+use ts_rs::TS;
 
-#[derive(Serialize)]
+#[derive(Serialize, TS)]
+#[ts(export, export_to = "frontend/bindings/")]
 pub struct CupsInfo {
     rooms: usize,
 }
