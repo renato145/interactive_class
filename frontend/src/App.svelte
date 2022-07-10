@@ -1,3 +1,23 @@
-<div class="container mx-auto rounded bg-slate-50 p-4">
-  <div class="text-4xl">Number of rooms: xx</div>
+<script lang="ts">
+  import type { TCups } from "./types";
+
+  const getCups = async () => {
+    const d = await fetch("/cups").then((response) => response.json());
+    return d as TCups;
+  };
+  let cups = getCups();
+</script>
+
+<div class="container mx-auto mt-4 rounded bg-slate-50 p-4">
+  <div class="text-6xl">Interactive Class</div>
+
+  <div class="mt-8">
+    {#await cups}
+      <p>loading...</p>
+    {:then data}
+      <p class="text-3xl"><span class="font-bold">Rooms:</span> {data.rooms}</p>
+    {:catch error}
+      <p>An error occurred: {error}</p>
+    {/await}
+  </div>
 </div>
