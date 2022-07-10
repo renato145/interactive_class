@@ -1,5 +1,2 @@
 application:
   port: 8000
-websocket:
-  heartbeat_interval: 1000
-  client_timeout: 5000
