@@ -1,6 +1,6 @@
 use crate::{
     configuration::{Settings, WSSettings},
-    routes::{get_cups, health_check_route, ws},
+    routes::{get_cups, get_cups_room, health_check_route, ws},
 };
 use actix_web::{dev::Server, web, App, HttpServer};
 use anyhow::Result;
@@ -53,7 +53,11 @@ pub async fn run(
             // .route("/", web::get().to(home))
             .route("/health_check", web::get().to(health_check_route))
             .route("/ws", web::get().to(ws))
-            .route("/cups", web::get().to(get_cups))
+            .service(
+                web::scope("/cups")
+                    .route("", web::get().to(get_cups))
+                    .service(get_cups_room),
+            )
             // .service(actix_files::Files::new("/static", "./static"))
             // .default_service(web::get().to(not_found))
             .app_data(base_url.clone())

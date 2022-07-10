@@ -28,15 +28,6 @@ pub struct TestApp {
 }
 
 impl TestApp {
-    #[allow(unused)]
-    pub async fn get_route(&self, route: &str) -> reqwest::Response {
-        self.api_client
-            .get(format!("{}/{}", &self.address, route))
-            .send()
-            .await
-            .expect("Failed to execute request.")
-    }
-
     pub async fn get_ws_connection(&self) -> actix_codec::Framed<awc::BoxedSocket, awc::ws::Codec> {
         let (_response, connection) = Client::new()
             .ws(format!("{}/ws", self.address))
@@ -46,7 +37,15 @@ impl TestApp {
         connection
     }
 
-    pub async fn get_cup_rooms(&self) -> reqwest::Response {
+    pub async fn get_route(&self, route: &str) -> reqwest::Response {
+        self.api_client
+            .get(format!("{}/{}", &self.address, route))
+            .send()
+            .await
+            .expect("Failed to execute request.")
+    }
+
+    pub async fn get_cups_info(&self) -> reqwest::Response {
         self.get_route("cups").await
     }
 }
