@@ -56,7 +56,7 @@ async fn get_room_info_after_someone_connects() {
     app.get_room_info(room_name).await;
     // Client connects
     // Get room info
-    let cups_info = app.get_room_info(room_name).await;
+    let _cups_info = app.get_room_info(room_name).await;
 
     // Assert
     todo!();
