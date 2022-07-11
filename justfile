@@ -12,7 +12,7 @@ checks:
   set -x
   cargo check
   cargo check --tests
-  cargo clippy
+  cargo clippy --all-targets
   cargo fmt --all -- --check
 
 tests:
