@@ -8,20 +8,22 @@
   };
   let cups = getCups();
 
-  let res;
-  const createNewRoom = async (e) => {
-    const formData = new FormData(e.target);
+  let createErrorMsg: string;
+  const createNewRoom = async (ev) => {
+    const formData = new FormData(ev.target);
     const data: CreateRoom = { new_room: formData.get("new_room") as string };
-    const d = await fetch("/cups/create_room", {
+    const response = await fetch("/cups/create_room", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(data),
-    }).then((response) => response.json());
-
-    console.log(d);
-    res = JSON.stringify(d);
+    });
+    if (response.ok) {
+      // redirect to room page
+    } else {
+      createErrorMsg = await response.text();
+    }
   };
 </script>
 
@@ -32,7 +34,7 @@
     {#await cups}
       <p>loading...</p>
     {:then data}
-      <p class="text-3xl">{data.rooms} Rooms</p>
+      <p class="text-3xl">{data.rooms.length} Rooms</p>
     {:catch error}
       <p>An error occurred: {error}</p>
     {/await}
@@ -48,5 +50,7 @@
     />
     <button class="btn" type="submit">Create room</button>
   </form>
-  {res}
+  {#if createErrorMsg}
+    <p class="bg-red-200">{createErrorMsg}</p>
+  {/if}
 </div>
