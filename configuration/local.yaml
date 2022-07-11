@@ -2,5 +2,5 @@ application:
   host: 127.0.0.1
   base_url: "http://127.0.0.1"
 websocket:
-  heartbeat_interval: 3000
+  heartbeat_interval: 10000
   client_timeout: 20000
