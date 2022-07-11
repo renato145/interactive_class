@@ -1,8 +1,8 @@
 pub mod configuration;
 pub mod routes;
 pub mod startup;
-pub mod telemetry;
 pub mod state;
+pub mod telemetry;
 pub mod utils;
 
 pub use startup::*;

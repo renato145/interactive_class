@@ -5,18 +5,20 @@ use actix::Message;
 use anyhow::Context;
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
+use ts_rs::TS;
 
-#[derive(Deserialize)]
+#[derive(Deserialize, TS)]
+#[ts(export, export_to = "frontend/bindings/")]
 pub enum WSTask {
     RoomConnect,
 }
 
 /// Message from client
-#[derive(Deserialize, Message)]
+#[derive(Deserialize, Message, TS)]
 #[rtype(result = "()")]
+#[ts(export, export_to = "frontend/bindings/")]
 pub struct WSMessage {
     pub task: WSTask,
-    pub payload: Option<serde_json::Value>,
 }
 
 impl FromStr for WSMessage {
@@ -30,18 +32,19 @@ impl FromStr for WSMessage {
 }
 
 /// Message to respond to client
-#[derive(Serialize, Message)]
+#[derive(Serialize, Message, TS)]
 #[rtype(result = "()")]
+#[ts(export, export_to = "frontend/bindings/")]
 pub struct ClientMessage {
     pub success: bool,
-    pub payload: serde_json::Value,
+    pub payload: Option<String>,
 }
 
 impl ClientMessage {
     pub fn success() -> Self {
         Self {
             success: true,
-            payload: serde_json::Value::Null,
+            payload: None,
         }
     }
 }
@@ -50,7 +53,7 @@ impl From<WSError> for ClientMessage {
     fn from(e: WSError) -> Self {
         Self {
             success: false,
-            payload: e.to_string().into(),
+            payload: Some(e.to_string()),
         }
     }
 }
