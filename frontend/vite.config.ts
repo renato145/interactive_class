@@ -7,6 +7,7 @@ export default defineConfig(({ command, mode }) => {
     // dev specific config
     return {
       plugins: [svelte()],
+      optimizeDeps: { exclude: ["svelte-navigator"] },
       server: {
         proxy: {
           "/cups": "http://localhost:8000",
@@ -17,6 +18,7 @@ export default defineConfig(({ command, mode }) => {
     // build specific config
     return {
       plugins: [svelte()],
+      optimizeDeps: { exclude: ["svelte-navigator"] },
     };
   }
 });
