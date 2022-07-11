@@ -1,8 +1,8 @@
 use super::{
-    message::{ClientMessage, WSMessage, WSTask},
+    message::{ClientMessage, WSMessage},
     ws,
 };
-use crate::{configuration::WSSettings, state::AppState};
+use crate::{configuration::WSSettings, routes::ws::message::WSTask, state::AppState};
 use actix::{Actor, ActorContext, AsyncContext, Handler, StreamHandler};
 use actix_web::web;
 use std::{str::FromStr, time::Instant};

@@ -25,6 +25,7 @@ impl FromStr for WSMessage {
     type Err = WSError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
+        tracing::debug!(s);
         serde_json::from_str::<Self>(s)
             .context("Failed to deserialize message")
             .map_err(WSError::ParseError)
