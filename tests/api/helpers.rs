@@ -7,7 +7,6 @@ use interactive_class::{
 };
 use once_cell::sync::Lazy;
 use reqwest::Response;
-use serde::Serialize;
 use std::time::Duration;
 
 // Ensure that 'tracing' stack is only initialized once using `once_cell`

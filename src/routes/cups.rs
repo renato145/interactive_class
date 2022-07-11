@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 use crate::{error_chain_fmt, state::AppState, utils::e400};
 use actix_web::{get, web, HttpResponse};
 use serde::{Deserialize, Serialize};
@@ -20,12 +22,15 @@ impl std::fmt::Debug for CupsError {
 #[derive(Debug, Default, Deserialize, Serialize, PartialEq, Eq, TS)]
 #[ts(export, export_to = "frontend/bindings/")]
 pub struct CupsInfo {
-    pub rooms: usize,
+    pub rooms: HashSet<String>,
 }
 
-#[tracing::instrument()]
-pub async fn get_cups() -> web::Json<CupsInfo> {
-    web::Json(CupsInfo { rooms: 0 })
+#[tracing::instrument(skip_all)]
+pub async fn get_cups(state: web::Data<AppState>) -> web::Json<CupsInfo> {
+    let cups_info = CupsInfo {
+        rooms: state.rooms.lock().unwrap().clone(),
+    };
+    web::Json(cups_info)
 }
 
 #[derive(Deserialize, TS)]

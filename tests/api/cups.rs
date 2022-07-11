@@ -1,5 +1,7 @@
+use std::collections::HashSet;
+
 use crate::helpers::spawn_app;
-use interactive_class::routes::{CupsInfo, RoomInfo};
+use interactive_class::routes::CupsInfo;
 
 #[tokio::test]
 async fn get_cups_info() {
@@ -25,6 +27,22 @@ async fn create_new_room() {
 
     // Assert
     response.error_for_status().unwrap();
+}
+
+#[tokio::test]
+async fn get_cups_info_after_rooms_are_created() {
+    // Arrange
+    let app = spawn_app().await;
+    app.create_cups_room("room1").await;
+    app.create_cups_room("room2").await;
+
+    // Act
+    let cups_info = app.get_cups_info().await;
+
+    // Assert
+    let rooms = HashSet::from_iter(["room1".to_string(), "room2".to_string()]);
+    let expected = CupsInfo { rooms };
+    assert_eq!(cups_info, expected);
 }
 
 #[actix_rt::test]
