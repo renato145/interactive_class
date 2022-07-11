@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { navigate } from "svelte-navigator";
+  import { navigate, Link } from "svelte-navigator";
   import type { CupsInfo } from "bindings/CupsInfo";
   import type { CreateRoom } from "bindings/CreateRoom";
 
@@ -33,6 +33,13 @@
     <p>loading...</p>
   {:then data}
     <p class="text-3xl">{data.rooms.length} Rooms</p>
+    <ul class="ml-4">
+      {#each data.rooms as room}
+        <li class="list-disc list-inside">
+          <Link to={`room/${room}`}>{room}</Link>
+        </li>
+      {/each}
+    </ul>
   {:catch error}
     <p>An error occurred: {error}</p>
   {/await}
