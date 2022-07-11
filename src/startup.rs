@@ -1,6 +1,6 @@
 use crate::{
     configuration::{Settings, WSSettings},
-    routes::{create_room, get_cups, health_check_route, ws},
+    routes::{create_room, get_cups_info, health_check_route, ws},
     state::AppState,
 };
 use actix_web::{dev::Server, web, App, HttpServer};
@@ -57,7 +57,7 @@ pub async fn run(
             .route("/ws", web::get().to(ws))
             .service(
                 web::scope("/cups")
-                    .route("", web::get().to(get_cups))
+                    .route("", web::get().to(get_cups_info))
                     .route("/create_room", web::post().to(create_room)),
                 // .service(get_cups_room),
             )

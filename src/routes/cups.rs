@@ -25,7 +25,7 @@ pub struct CupsInfo {
 }
 
 #[tracing::instrument(skip_all)]
-pub async fn get_cups(state: web::Data<AppState>) -> web::Json<CupsInfo> {
+pub async fn get_cups_info(state: web::Data<AppState>) -> web::Json<CupsInfo> {
     let cups_info = CupsInfo {
         rooms: state.rooms.lock().unwrap().clone(),
     };
