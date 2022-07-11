@@ -7,18 +7,13 @@ use serde::{Deserialize, Serialize};
 use std::str::FromStr;
 use ts_rs::TS;
 
-#[derive(Deserialize, TS)]
-#[ts(export, export_to = "frontend/bindings/")]
-pub enum WSTask {
-    RoomConnect,
-}
-
 /// Message from client
 #[derive(Deserialize, Message, TS)]
 #[rtype(result = "()")]
+#[serde(tag = "task", content = "payload")]
 #[ts(export, export_to = "frontend/bindings/")]
-pub struct WSMessage {
-    pub task: WSTask,
+pub enum WSMessage {
+    RoomConnect,
 }
 
 impl FromStr for WSMessage {

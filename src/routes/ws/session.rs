@@ -2,7 +2,7 @@ use super::{
     message::{ClientMessage, WSMessage},
     ws,
 };
-use crate::{configuration::WSSettings, routes::ws::message::WSTask, state::AppState};
+use crate::{configuration::WSSettings, state::AppState};
 use actix::{Actor, ActorContext, AsyncContext, Handler, StreamHandler};
 use actix_web::web;
 use std::{str::FromStr, time::Instant};
@@ -41,8 +41,8 @@ impl WSSession {
     fn process_message(&self, msg: &str, ctx: &mut ws::WebsocketContext<WSSession>) {
         let addr = ctx.address();
         match WSMessage::from_str(msg) {
-            Ok(msg) => match msg.task {
-                WSTask::RoomConnect => addr.do_send(self.room_connect()),
+            Ok(msg) => match msg {
+                WSMessage::RoomConnect => addr.do_send(self.room_connect()),
             },
             Err(e) => {
                 tracing::error!("{:?}", e);
