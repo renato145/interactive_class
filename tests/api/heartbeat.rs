@@ -1,4 +1,4 @@
-use crate::helpers::spawn_app;
+use crate::helpers::spawn_app_with_timeout;
 use actix_web_actors::ws;
 use futures::{SinkExt, StreamExt};
 use std::time::Duration;
@@ -6,7 +6,7 @@ use std::time::Duration;
 #[actix_rt::test]
 async fn client_receives_heartbeat_every_x_milliseconds() {
     // Arrange
-    let app = spawn_app().await;
+    let app = spawn_app_with_timeout(250).await;
     let mut connection = app.get_ws_connection().await;
     let sleep = tokio::time::sleep(Duration::from_millis(250));
     tokio::pin!(sleep);
@@ -33,7 +33,7 @@ async fn client_receives_heartbeat_every_x_milliseconds() {
 #[actix_rt::test]
 async fn client_disconnects_after_x_milliseconds() {
     // Arrange
-    let app = spawn_app().await;
+    let app = spawn_app_with_timeout(250).await;
     let mut connection = app.get_ws_connection().await;
     let sleep = tokio::time::sleep(Duration::from_millis(500));
     tokio::pin!(sleep);
@@ -63,7 +63,7 @@ async fn client_disconnects_after_x_milliseconds() {
 #[actix_rt::test]
 async fn client_stays_alive_if_responds_pings() {
     // Arrange
-    let app = spawn_app().await;
+    let app = spawn_app_with_timeout(250).await;
     let mut connection = app.get_ws_connection().await;
     let sleep = tokio::time::sleep(Duration::from_millis(500));
     tokio::pin!(sleep);

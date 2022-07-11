@@ -76,7 +76,7 @@ impl TestApp {
     // }
 }
 
-pub async fn spawn_app() -> TestApp {
+pub async fn spawn_app_with_timeout(timeout: u64) -> TestApp {
     // Set up tracing
     Lazy::force(&TRACING);
 
@@ -86,7 +86,7 @@ pub async fn spawn_app() -> TestApp {
         // Port 0 give us a random available port
         c.application.port = 0;
         c.websocket.heartbeat_interval = Duration::from_millis(50);
-        c.websocket.client_timeout = Duration::from_millis(250);
+        c.websocket.client_timeout = Duration::from_millis(timeout);
         c
     };
 
@@ -108,6 +108,10 @@ pub async fn spawn_app() -> TestApp {
         api_client: client,
     };
     test_app
+}
+
+pub async fn spawn_app() -> TestApp {
+    spawn_app_with_timeout(5000).await
 }
 
 #[allow(unused)]

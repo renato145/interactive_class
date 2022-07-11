@@ -28,7 +28,7 @@ impl FromStr for WSMessage {
 }
 
 /// Message to respond to client
-#[derive(Serialize, Message, TS)]
+#[derive(Debug, Deserialize, Serialize, Message, TS)]
 #[rtype(result = "()")]
 #[ts(export, export_to = "frontend/bindings/")]
 pub struct ClientMessage {

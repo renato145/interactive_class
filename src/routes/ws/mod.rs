@@ -1,8 +1,7 @@
 //! Inspired by cups.fast.ai
 mod error;
-mod message;
+pub mod message;
 mod session;
-// mod server;
 
 use self::session::WSSession;
 use crate::{configuration::WSSettings, state::AppState};

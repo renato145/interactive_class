@@ -1,5 +1,7 @@
 use crate::helpers::spawn_app;
-use interactive_class::routes::CupsInfo;
+use awc::ws::{self, Message};
+use futures::{SinkExt, StreamExt};
+use interactive_class::routes::{message::ClientMessage, CupsInfo};
 use std::collections::HashSet;
 
 #[tokio::test]
@@ -47,18 +49,26 @@ async fn get_cups_info_after_rooms_are_created() {
 #[actix_rt::test]
 async fn get_room_info_after_someone_connects() {
     // Arrange
-    let _app = spawn_app().await;
-    let _room_name = "test_room";
+    let app = spawn_app().await;
+    let room_name = "test_room";
 
     // Act
     // Create room
-    // app.get_room_info(room_name).await;
+    app.create_cups_room(room_name).await;
     // Client connects
+    let mut connection = app.get_ws_connection().await;
+    connection
+        .send(Message::Text(r#"{"task": "RoomConnect"}"#.into()))
+        .await
+        .expect("Failed to send Pong message.");
     // Get room info
-    // let _cups_info = app.get_room_info(room_name).await;
+    let msg = match connection.next().await.unwrap().unwrap() {
+        ws::Frame::Text(msg) => serde_json::from_slice::<ClientMessage>(&msg).unwrap(),
+        msg => panic!("Invalid msg: {:?}", msg),
+    };
 
     // Assert
-    todo!();
-    // let expected = RoomInfo::new(room_name);
-    // assert_eq!(cups_info, expected);
+    assert!(msg.success);
+    let expected = "".to_string();
+    assert_eq!(msg.payload.unwrap(), expected);
 }

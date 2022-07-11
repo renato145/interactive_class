@@ -49,9 +49,9 @@ impl WSSession {
                 addr.do_send(e.into());
             }
         }
-        println!("{:?}", self.state);
     }
 
+    /// Connects to a room and returns room information to the client
     fn room_connect(&self) -> ClientMessage {
         // let mut rooms = self.state.rooms.lock().unwrap();
         // rooms.push("Something".to_string());
