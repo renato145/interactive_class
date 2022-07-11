@@ -7,6 +7,7 @@ use interactive_class::{
 };
 use once_cell::sync::Lazy;
 use reqwest::Response;
+use serde::Serialize;
 use std::time::Duration;
 
 // Ensure that 'tracing' stack is only initialized once using `once_cell`
@@ -41,6 +42,15 @@ impl TestApp {
     pub async fn get_route(&self, route: &str) -> reqwest::Response {
         self.api_client
             .get(format!("{}/{}", &self.address, route))
+            .send()
+            .await
+            .expect("Failed to execute request.")
+    }
+
+    pub async fn create_cups_room(&self, name: &str) -> reqwest::Response {
+        self.api_client
+            .post(format!("{}/cups/create_room", &self.address))
+            .json(&serde_json::json!({ "new_room": name }))
             .send()
             .await
             .expect("Failed to execute request.")

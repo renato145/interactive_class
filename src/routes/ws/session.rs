@@ -53,8 +53,8 @@ impl WSSession {
     }
 
     fn room_connect(&self) -> ClientMessage {
-        let mut rooms = self.state.rooms.lock().unwrap();
-        rooms.push("Something".to_string());
+        // let mut rooms = self.state.rooms.lock().unwrap();
+        // rooms.push("Something".to_string());
         ClientMessage::success()
     }
 }

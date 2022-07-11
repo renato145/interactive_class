@@ -21,11 +21,10 @@ async fn create_new_room() {
     let room_name = "test_room";
 
     // Act
-    let cups_info = app.get_room_info(room_name).await;
+    let response = app.create_cups_room(room_name).await;
 
     // Assert
-    let expected = RoomInfo::new(room_name);
-    assert_eq!(cups_info, expected);
+    response.error_for_status().unwrap();
 }
 
 #[actix_rt::test]
