@@ -1,8 +1,7 @@
-use std::collections::HashSet;
-
 use crate::{error_chain_fmt, state::AppState, utils::e400};
-use actix_web::{get, web, HttpResponse};
+use actix_web::{web, HttpResponse};
 use serde::{Deserialize, Serialize};
+use std::collections::HashSet;
 use ts_rs::TS;
 
 #[derive(thiserror::Error)]
@@ -53,23 +52,23 @@ pub async fn create_room(
     }
 }
 
-#[derive(Debug, Default, Deserialize, Serialize, PartialEq, Eq, TS)]
-#[ts(export, export_to = "frontend/bindings/")]
-pub struct RoomInfo {
-    pub name: String,
-}
+// #[derive(Debug, Default, Deserialize, Serialize, PartialEq, Eq, TS)]
+// #[ts(export, export_to = "frontend/bindings/")]
+// pub struct RoomInfo {
+//     pub name: String,
+// }
 
-impl RoomInfo {
-    pub fn new(name: impl ToString) -> Self {
-        Self {
-            name: name.to_string(),
-        }
-    }
-}
+// impl RoomInfo {
+//     pub fn new(name: impl ToString) -> Self {
+//         Self {
+//             name: name.to_string(),
+//         }
+//     }
+// }
 
-/// Get room information, if it doesn't exists it creates a new room
-#[tracing::instrument()]
-#[get("/{room}")]
-pub async fn get_cups_room(path: web::Path<String>) -> web::Json<RoomInfo> {
-    web::Json(RoomInfo::new(path.into_inner()))
-}
+// /// Get room information, if it doesn't exists it creates a new room
+// #[tracing::instrument()]
+// #[get("/{room}")]
+// pub async fn get_cups_room(path: web::Path<String>) -> web::Json<RoomInfo> {
+//     web::Json(RoomInfo::new(path.into_inner()))
+// }

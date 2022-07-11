@@ -1,7 +1,7 @@
 use awc::Client;
 use interactive_class::{
     configuration::get_configuration,
-    routes::{CupsInfo, RoomInfo},
+    routes::CupsInfo,
     telemetry::{get_subscriber, init_subscriber},
     Application,
 };
@@ -65,15 +65,15 @@ impl TestApp {
             .unwrap()
     }
 
-    pub async fn get_room_info(&self, room_name: &str) -> RoomInfo {
-        self.get_route(&format!("cups/{room_name}"))
-            .await
-            .error_for_status()
-            .unwrap()
-            .json()
-            .await
-            .unwrap()
-    }
+    // pub async fn get_room_info(&self, room_name: &str) -> RoomInfo {
+    //     self.get_route(&format!("cups/{room_name}"))
+    //         .await
+    //         .error_for_status()
+    //         .unwrap()
+    //         .json()
+    //         .await
+    //         .unwrap()
+    // }
 }
 
 pub async fn spawn_app() -> TestApp {

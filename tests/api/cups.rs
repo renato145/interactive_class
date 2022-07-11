@@ -1,7 +1,6 @@
-use std::collections::HashSet;
-
 use crate::helpers::spawn_app;
 use interactive_class::routes::CupsInfo;
+use std::collections::HashSet;
 
 #[tokio::test]
 async fn get_cups_info() {
@@ -48,15 +47,15 @@ async fn get_cups_info_after_rooms_are_created() {
 #[actix_rt::test]
 async fn get_room_info_after_someone_connects() {
     // Arrange
-    let app = spawn_app().await;
-    let room_name = "test_room";
+    let _app = spawn_app().await;
+    let _room_name = "test_room";
 
     // Act
     // Create room
-    app.get_room_info(room_name).await;
+    // app.get_room_info(room_name).await;
     // Client connects
     // Get room info
-    let _cups_info = app.get_room_info(room_name).await;
+    // let _cups_info = app.get_room_info(room_name).await;
 
     // Assert
     todo!();

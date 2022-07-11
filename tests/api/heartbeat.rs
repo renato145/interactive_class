@@ -44,7 +44,7 @@ async fn client_disconnects_after_x_milliseconds() {
         tokio::select! {
             msg = connection.next() => {
                 tracing::info!("==> {:?}", msg);
-                if let None = msg {
+                if msg.is_none() {
                     disconnected = true;
                     break;
                 }
