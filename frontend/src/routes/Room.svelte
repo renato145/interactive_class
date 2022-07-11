@@ -9,7 +9,7 @@
 
   const send_msg = () => {
     sendWSMessage({
-      task: "RoomConnect"
+      task: "RoomConnect",
     });
   };
 
