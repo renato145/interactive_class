@@ -30,37 +30,22 @@ impl FromStr for WSMessage {
 /// Message to respond to client
 #[derive(Debug, Deserialize, Serialize, Message, TS)]
 #[rtype(result = "()")]
+#[serde(tag = "kind", content = "payload")]
 #[ts(export, export_to = "frontend/bindings/")]
-pub struct ClientMessage {
-    pub success: bool,
-    pub payload: Option<String>,
+pub enum ClientMessage {
+    RoomInfo(RoomInfo),
+    Error(String),
 }
 
-impl ClientMessage {
-    pub fn success() -> Self {
-        Self {
-            success: true,
-            payload: None,
-        }
-    }
-
-    pub fn success_msg(msg: String) -> Self {
-        Self {
-            success: true,
-            payload: Some(msg),
-        }
-    }
-
-    pub fn error(msg: String) -> Self {
-        Self {
-            success: false,
-            payload: Some(msg),
-        }
-    }
+#[derive(Debug, Deserialize, Serialize, TS)]
+#[ts(export, export_to = "frontend/bindings/")]
+pub struct RoomInfo {
+    pub name: String,
+    pub connections: usize,
 }
 
 impl From<WSError> for ClientMessage {
     fn from(e: WSError) -> Self {
-        Self::error(e.to_string())
+        Self::Error(e.to_string())
     }
 }

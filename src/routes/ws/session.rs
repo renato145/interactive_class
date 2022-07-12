@@ -1,6 +1,5 @@
 use super::{
-    error::WSError,
-    message::{ClientMessage, WSMessage},
+    message::{ClientMessage, RoomInfo, WSMessage},
     ws,
 };
 use crate::{configuration::WSSettings, state::AppState};
@@ -54,17 +53,28 @@ impl WSSession {
         }
     }
 
-    fn get_room_info(&self) -> String {
-        todo!()
+    fn get_room_info(&self) -> ClientMessage {
+        match &self.room {
+            Some(name) => {
+                // let a = self.state.rooms;
+                let connections = 0;
+                ClientMessage::RoomInfo(RoomInfo {
+                    name: name.clone(),
+                    connections,
+                })
+            }
+            None => ClientMessage::Error("No connected to any room".to_string()),
+        }
     }
 
     /// Connects to a room and returns room information to the client
+    #[tracing::instrument(skip(self))]
     fn room_connect(&mut self, room_name: String) -> ClientMessage {
         if self.state.rooms.lock().unwrap().contains(&room_name) {
             self.room = Some(room_name);
-            ClientMessage::success_msg(self.get_room_info())
+            self.get_room_info()
         } else {
-            ClientMessage::error(format!("Room not found {room_name:?}"))
+            ClientMessage::Error(format!("Room not found {room_name:?}"))
         }
     }
 }
