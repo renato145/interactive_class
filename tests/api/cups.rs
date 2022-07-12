@@ -47,7 +47,7 @@ async fn get_cups_info_after_rooms_are_created() {
 }
 
 #[actix_rt::test]
-async fn get_room_info_after_someone_connects() {
+async fn get_room_info_when_client_connects() {
     // Arrange
     let app = spawn_app().await;
     let room_name = "test_room";
@@ -76,6 +76,38 @@ async fn get_room_info_after_someone_connects() {
         ClientMessage::RoomInfo(msg) => {
             assert_eq!(&msg.name, room_name);
             assert_eq!(msg.connections, 1);
+        }
+        msg => panic!("Invalid msg: {msg:?}"),
+    }
+}
+
+#[actix_rt::test]
+async fn fail_to_get_room_info_when_client_connects_to_unexisting_room() {
+    // Arrange
+    let app = spawn_app().await;
+    let room_name = "test_room";
+
+    // Act
+    // Client connects
+    let mut connection = app.get_ws_connection().await;
+    let msg = serde_json::json!({
+        "task": "RoomConnect",
+        "payload": room_name
+    });
+    connection
+        .send(Message::Text(msg.to_string().into()))
+        .await
+        .expect("Failed to send message.");
+    // Get room info
+    let msg = match connection.next().await.unwrap().unwrap() {
+        ws::Frame::Text(msg) => serde_json::from_slice::<ClientMessage>(&msg).unwrap(),
+        msg => panic!("Invalid msg: {:?}", msg),
+    };
+
+    // Assert
+    match msg {
+        ClientMessage::Error(msg) => {
+            assert_eq!(&msg, "Room not found \"test_room\"");
         }
         msg => panic!("Invalid msg: {msg:?}"),
     }
