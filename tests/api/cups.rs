@@ -57,8 +57,12 @@ async fn get_room_info_after_someone_connects() {
     app.create_cups_room(room_name).await;
     // Client connects
     let mut connection = app.get_ws_connection().await;
+    let msg = serde_json::json!({
+        "task": "RoomConnect",
+        "payload": room_name
+    });
     connection
-        .send(Message::Text(r#"{"task": "RoomConnect"}"#.into()))
+        .send(Message::Text(msg.to_string().into()))
         .await
         .expect("Failed to send message.");
     // Get room info
@@ -68,7 +72,11 @@ async fn get_room_info_after_someone_connects() {
     };
 
     // Assert
-    assert!(msg.success);
-    let expected = "".to_string();
-    assert_eq!(msg.payload.unwrap(), expected);
+    match msg {
+        ClientMessage::RoomInfo(msg) => {
+            assert_eq!(&msg.name, room_name);
+            assert_eq!(msg.connections, 1);
+        }
+        msg => panic!("Invalid msg: {msg:?}"),
+    }
 }
