@@ -60,7 +60,7 @@ async fn get_room_info_after_someone_connects() {
     connection
         .send(Message::Text(r#"{"task": "RoomConnect"}"#.into()))
         .await
-        .expect("Failed to send Pong message.");
+        .expect("Failed to send message.");
     // Get room info
     let msg = match connection.next().await.unwrap().unwrap() {
         ws::Frame::Text(msg) => serde_json::from_slice::<ClientMessage>(&msg).unwrap(),

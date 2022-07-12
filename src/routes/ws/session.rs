@@ -1,4 +1,5 @@
 use super::{
+    error::WSError,
     message::{ClientMessage, WSMessage},
     ws,
 };
@@ -9,6 +10,7 @@ use std::{str::FromStr, time::Instant};
 
 pub struct WSSession {
     hb: Instant,
+    room: Option<String>,
     state: web::Data<AppState>,
     settings: WSSettings,
 }
@@ -17,6 +19,7 @@ impl WSSession {
     pub fn new(state: web::Data<AppState>, settings: WSSettings) -> Self {
         Self {
             hb: Instant::now(),
+            room: None,
             state,
             settings,
         }
@@ -38,11 +41,11 @@ impl WSSession {
     }
 
     #[tracing::instrument(skip(self, ctx))]
-    fn process_message(&self, msg: &str, ctx: &mut ws::WebsocketContext<WSSession>) {
+    fn process_message(&mut self, msg: &str, ctx: &mut ws::WebsocketContext<WSSession>) {
         let addr = ctx.address();
         match WSMessage::from_str(msg) {
             Ok(msg) => match msg {
-                WSMessage::RoomConnect => addr.do_send(self.room_connect()),
+                WSMessage::RoomConnect(room_name) => addr.do_send(self.room_connect(room_name)),
             },
             Err(e) => {
                 tracing::error!("{:?}", e);
@@ -51,11 +54,18 @@ impl WSSession {
         }
     }
 
+    fn get_room_info(&self) -> String {
+        todo!()
+    }
+
     /// Connects to a room and returns room information to the client
-    fn room_connect(&self) -> ClientMessage {
-        // let mut rooms = self.state.rooms.lock().unwrap();
-        // rooms.push("Something".to_string());
-        ClientMessage::success()
+    fn room_connect(&mut self, room_name: String) -> ClientMessage {
+        if self.state.rooms.lock().unwrap().contains(&room_name) {
+            self.room = Some(room_name);
+            ClientMessage::success_msg(self.get_room_info())
+        } else {
+            ClientMessage::error(format!("Room not found {room_name:?}"))
+        }
     }
 }
 

@@ -13,7 +13,7 @@ use ts_rs::TS;
 #[serde(tag = "task", content = "payload")]
 #[ts(export, export_to = "frontend/bindings/")]
 pub enum WSMessage {
-    RoomConnect,
+    RoomConnect(String),
 }
 
 impl FromStr for WSMessage {
@@ -43,13 +43,24 @@ impl ClientMessage {
             payload: None,
         }
     }
+
+    pub fn success_msg(msg: String) -> Self {
+        Self {
+            success: true,
+            payload: Some(msg),
+        }
+    }
+
+    pub fn error(msg: String) -> Self {
+        Self {
+            success: false,
+            payload: Some(msg),
+        }
+    }
 }
 
 impl From<WSError> for ClientMessage {
     fn from(e: WSError) -> Self {
-        Self {
-            success: false,
-            payload: Some(e.to_string()),
-        }
+        Self::error(e.to_string())
     }
 }
