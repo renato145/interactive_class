@@ -7,6 +7,10 @@ dev:
 watch_dev:
   RUST_LOG=debug cargo watch --clear -i "tests" -i "frontend" -x "run | bunyan"
 
+refresh_bindings:
+  rm frontend/bindings/*
+  cargo test --lib
+
 checks:
   #!/usr/bin/env bash
   set -x
