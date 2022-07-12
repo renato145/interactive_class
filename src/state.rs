@@ -1,6 +1,6 @@
-use std::{collections::HashSet, sync::Mutex};
+use std::{collections::HashMap, sync::Mutex};
 
 #[derive(Default, Debug)]
 pub struct AppState {
-    pub rooms: Mutex<HashSet<String>>,
+    pub rooms: Mutex<HashMap<String, usize>>,
 }

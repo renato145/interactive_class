@@ -55,14 +55,16 @@ impl WSSession {
 
     fn get_room_info(&self) -> ClientMessage {
         match &self.room {
-            Some(name) => {
-                // let a = self.state.rooms;
-                let connections = 0;
-                ClientMessage::RoomInfo(RoomInfo {
+            Some(name) => match self.state.rooms.lock().unwrap().get(name) {
+                Some(&connections) => ClientMessage::RoomInfo(RoomInfo {
                     name: name.clone(),
                     connections,
-                })
-            }
+                }),
+                None => {
+                    tracing::error!("Invalid room on sessions: {name:?}");
+                    ClientMessage::internal_error()
+                }
+            },
             None => ClientMessage::Error("No connected to any room".to_string()),
         }
     }
@@ -70,12 +72,16 @@ impl WSSession {
     /// Connects to a room and returns room information to the client
     #[tracing::instrument(skip(self))]
     fn room_connect(&mut self, room_name: String) -> ClientMessage {
-        if self.state.rooms.lock().unwrap().contains(&room_name) {
-            self.room = Some(room_name);
-            self.get_room_info()
-        } else {
-            ClientMessage::Error(format!("Room not found {room_name:?}"))
-        }
+        self.room = Some(room_name.clone());
+        match self.state.rooms.lock().unwrap().get_mut(&room_name) {
+            Some(connections) => {
+                *connections += 1;
+            }
+            None => {
+                return ClientMessage::Error(format!("Room not found {room_name:?}"));
+            }
+        };
+        self.get_room_info()
     }
 }
 

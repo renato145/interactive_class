@@ -26,9 +26,8 @@ pub struct CupsInfo {
 
 #[tracing::instrument(skip_all)]
 pub async fn get_cups_info(state: web::Data<AppState>) -> web::Json<CupsInfo> {
-    let cups_info = CupsInfo {
-        rooms: state.rooms.lock().unwrap().clone(),
-    };
+    let rooms = state.rooms.lock().unwrap().keys().cloned().collect();
+    let cups_info = CupsInfo { rooms };
     web::Json(cups_info)
 }
 
@@ -45,30 +44,9 @@ pub async fn create_room(
 ) -> Result<HttpResponse, actix_web::Error> {
     let room_name = form.into_inner().new_room;
     let mut rooms = state.rooms.lock().unwrap();
-    if rooms.insert(room_name.clone()) {
+    if rooms.insert(room_name.clone(), 0).is_none() {
         Ok(HttpResponse::Ok().finish())
     } else {
         Err(e400(CupsError::RoomAlreadyExists(room_name)))
     }
 }
-
-// #[derive(Debug, Default, Deserialize, Serialize, PartialEq, Eq, TS)]
-// #[ts(export, export_to = "frontend/bindings/")]
-// pub struct RoomInfo {
-//     pub name: String,
-// }
-
-// impl RoomInfo {
-//     pub fn new(name: impl ToString) -> Self {
-//         Self {
-//             name: name.to_string(),
-//         }
-//     }
-// }
-
-// /// Get room information, if it doesn't exists it creates a new room
-// #[tracing::instrument()]
-// #[get("/{room}")]
-// pub async fn get_cups_room(path: web::Path<String>) -> web::Json<RoomInfo> {
-//     web::Json(RoomInfo::new(path.into_inner()))
-// }

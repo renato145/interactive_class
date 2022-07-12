@@ -37,6 +37,12 @@ pub enum ClientMessage {
     Error(String),
 }
 
+impl ClientMessage {
+    pub fn internal_error() -> Self {
+        Self::Error("Internal server error".to_string())
+    }
+}
+
 #[derive(Debug, Deserialize, Serialize, TS)]
 #[ts(export, export_to = "frontend/bindings/")]
 pub struct RoomInfo {
