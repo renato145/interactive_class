@@ -1,4 +1,5 @@
-use crate::helpers::{send_ws_msg, spawn_app};
+use crate::helpers::{get_next_ws_msg, send_ws_msg, spawn_app};
+use futures::SinkExt;
 use interactive_class::routes::{message::ClientMessage, CupsInfo};
 use std::collections::HashSet;
 
@@ -120,6 +121,40 @@ async fn get_room_info_when_second_client_connects() {
         ClientMessage::RoomInfo(msg) => {
             assert_eq!(&msg.name, room_name);
             assert_eq!(msg.connections, 2);
+        }
+        msg => panic!("Invalid msg: {msg:?}"),
+    }
+}
+
+#[actix_rt::test]
+async fn get_room_info_refreshes_when_second_client_disconnects() {
+    // Arrange
+    let app = spawn_app().await;
+    let room_name = "test_room";
+    let msg = serde_json::json!({
+        "task": "RoomConnect",
+        "payload": room_name
+    });
+
+    // Act
+    // Create room
+    app.create_cups_room(room_name).await;
+    // First client connects
+    let mut connection1 = app.get_ws_connection().await;
+    send_ws_msg(&mut connection1, msg.clone()).await;
+    // Second client connects
+    let mut connection2 = app.get_ws_connection().await;
+    send_ws_msg(&mut connection2, msg).await;
+    // Second client disconnects
+    connection2.close().await.unwrap();
+    // Get room info message
+    let msg = get_next_ws_msg(&mut connection1).await;
+
+    // Assert
+    match msg {
+        ClientMessage::RoomInfo(msg) => {
+            assert_eq!(&msg.name, room_name);
+            assert_eq!(msg.connections, 1);
         }
         msg => panic!("Invalid msg: {msg:?}"),
     }

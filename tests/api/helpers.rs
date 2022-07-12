@@ -103,7 +103,21 @@ pub async fn spawn_app_with_timeout(timeout: u64) -> TestApp {
 }
 
 pub async fn spawn_app() -> TestApp {
-    spawn_app_with_timeout(5000).await
+    spawn_app_with_timeout(2000).await
+}
+
+pub async fn get_next_ws_msg(
+    connection: &mut actix_codec::Framed<awc::BoxedSocket, awc::ws::Codec>,
+) -> ClientMessage {
+    loop {
+        match connection.next().await {
+            Some(Ok(ws::Frame::Text(msg))) => {
+                return serde_json::from_slice::<ClientMessage>(&msg).unwrap();
+            }
+            Some(_) => {}
+            None => panic!("Time out waiting for ws msg."),
+        }
+    }
 }
 
 pub async fn send_ws_msg(
@@ -114,10 +128,7 @@ pub async fn send_ws_msg(
         .send(Message::Text(msg.to_string().into()))
         .await
         .expect("Failed to send message.");
-    match connection.next().await.unwrap().unwrap() {
-        ws::Frame::Text(msg) => serde_json::from_slice::<ClientMessage>(&msg).unwrap(),
-        msg => panic!("Invalid msg: {:?}", msg),
-    }
+    get_next_ws_msg(connection).await
 }
 
 #[allow(unused)]
