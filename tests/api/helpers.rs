@@ -1,7 +1,9 @@
+use awc::ws::{self, Message};
 use awc::Client;
+use futures::{SinkExt, StreamExt};
 use interactive_class::{
     configuration::get_configuration,
-    routes::CupsInfo,
+    routes::{message::ClientMessage, CupsInfo},
     telemetry::{get_subscriber, init_subscriber},
     Application,
 };
@@ -64,16 +66,6 @@ impl TestApp {
             .await
             .unwrap()
     }
-
-    // pub async fn get_room_info(&self, room_name: &str) -> RoomInfo {
-    //     self.get_route(&format!("cups/{room_name}"))
-    //         .await
-    //         .error_for_status()
-    //         .unwrap()
-    //         .json()
-    //         .await
-    //         .unwrap()
-    // }
 }
 
 pub async fn spawn_app_with_timeout(timeout: u64) -> TestApp {
@@ -112,6 +104,20 @@ pub async fn spawn_app_with_timeout(timeout: u64) -> TestApp {
 
 pub async fn spawn_app() -> TestApp {
     spawn_app_with_timeout(5000).await
+}
+
+pub async fn send_ws_msg(
+    connection: &mut actix_codec::Framed<awc::BoxedSocket, awc::ws::Codec>,
+    msg: serde_json::Value,
+) -> ClientMessage {
+    connection
+        .send(Message::Text(msg.to_string().into()))
+        .await
+        .expect("Failed to send message.");
+    match connection.next().await.unwrap().unwrap() {
+        ws::Frame::Text(msg) => serde_json::from_slice::<ClientMessage>(&msg).unwrap(),
+        msg => panic!("Invalid msg: {:?}", msg),
+    }
 }
 
 #[allow(unused)]

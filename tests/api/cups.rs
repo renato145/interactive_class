@@ -1,6 +1,4 @@
-use crate::helpers::spawn_app;
-use awc::ws::{self, Message};
-use futures::{SinkExt, StreamExt};
+use crate::helpers::{send_ws_msg, spawn_app};
 use interactive_class::routes::{message::ClientMessage, CupsInfo};
 use std::collections::HashSet;
 
@@ -51,25 +49,17 @@ async fn get_room_info_when_client_connects() {
     // Arrange
     let app = spawn_app().await;
     let room_name = "test_room";
+    let msg = serde_json::json!({
+        "task": "RoomConnect",
+        "payload": room_name
+    });
 
     // Act
     // Create room
     app.create_cups_room(room_name).await;
     // Client connects
     let mut connection = app.get_ws_connection().await;
-    let msg = serde_json::json!({
-        "task": "RoomConnect",
-        "payload": room_name
-    });
-    connection
-        .send(Message::Text(msg.to_string().into()))
-        .await
-        .expect("Failed to send message.");
-    // Get room info
-    let msg = match connection.next().await.unwrap().unwrap() {
-        ws::Frame::Text(msg) => serde_json::from_slice::<ClientMessage>(&msg).unwrap(),
-        msg => panic!("Invalid msg: {:?}", msg),
-    };
+    let msg = send_ws_msg(&mut connection, msg).await;
 
     // Assert
     match msg {
@@ -86,28 +76,50 @@ async fn fail_to_get_room_info_when_client_connects_to_unexisting_room() {
     // Arrange
     let app = spawn_app().await;
     let room_name = "test_room";
-
-    // Act
-    // Client connects
-    let mut connection = app.get_ws_connection().await;
     let msg = serde_json::json!({
         "task": "RoomConnect",
         "payload": room_name
     });
-    connection
-        .send(Message::Text(msg.to_string().into()))
-        .await
-        .expect("Failed to send message.");
-    // Get room info
-    let msg = match connection.next().await.unwrap().unwrap() {
-        ws::Frame::Text(msg) => serde_json::from_slice::<ClientMessage>(&msg).unwrap(),
-        msg => panic!("Invalid msg: {:?}", msg),
-    };
+
+    // Act
+    // Client connects
+    let mut connection = app.get_ws_connection().await;
+    let msg = send_ws_msg(&mut connection, msg).await;
 
     // Assert
     match msg {
         ClientMessage::Error(msg) => {
             assert_eq!(&msg, "Room not found \"test_room\"");
+        }
+        msg => panic!("Invalid msg: {msg:?}"),
+    }
+}
+
+#[actix_rt::test]
+async fn get_room_info_when_second_client_connects() {
+    // Arrange
+    let app = spawn_app().await;
+    let room_name = "test_room";
+    let msg = serde_json::json!({
+        "task": "RoomConnect",
+        "payload": room_name
+    });
+
+    // Act
+    // Create room
+    app.create_cups_room(room_name).await;
+    // First client connects
+    let mut connection1 = app.get_ws_connection().await;
+    send_ws_msg(&mut connection1, msg.clone()).await;
+    // Second client connects
+    let mut connection2 = app.get_ws_connection().await;
+    let msg = send_ws_msg(&mut connection2, msg).await;
+
+    // Assert
+    match msg {
+        ClientMessage::RoomInfo(msg) => {
+            assert_eq!(&msg.name, room_name);
+            assert_eq!(msg.connections, 2);
         }
         msg => panic!("Invalid msg: {msg:?}"),
     }
