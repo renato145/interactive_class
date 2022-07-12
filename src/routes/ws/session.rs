@@ -53,6 +53,11 @@ impl WSSession {
         }
     }
 
+    #[tracing::instrument(skip(self, ctx))]
+    fn broadcast_message(&mut self, msg: &str, ctx: &mut ws::WebsocketContext<WSSession>) {
+        tracing::error!("BROADCASTING {msg}");
+    }
+
     fn get_room_info(&self) -> ClientMessage {
         match &self.room {
             Some(name) => match self.state.rooms.lock().unwrap().get(name) {
@@ -90,6 +95,10 @@ impl Actor for WSSession {
 
     fn started(&mut self, ctx: &mut Self::Context) {
         self.hb(ctx);
+    }
+
+    fn stopped(&mut self, ctx: &mut Self::Context) {
+        self.broadcast_message("lalala", ctx);
     }
 }
 
