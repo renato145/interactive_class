@@ -2,10 +2,7 @@ use super::{
     message::{ClientMessage, WSMessage},
     ws,
 };
-use crate::{
-    configuration::WSSettings,
-    state::{AppState, RoomConnectionInfo},
-};
+use crate::{configuration::WSSettings, state::AppState};
 use actix::{Actor, ActorContext, AsyncContext, Handler, Recipient, StreamHandler};
 use actix_web::web;
 use std::{str::FromStr, time::Instant};
@@ -55,7 +52,7 @@ impl WSSession {
                 }
             },
             Err(e) => {
-                tracing::error!("{:?}", e);
+                tracing::error!(error.cause_chain =? e, error.message = %e, "Failed to parse message.");
                 addr.do_send(e.into());
             }
         }
@@ -68,16 +65,16 @@ impl WSSession {
                 Some(room_state) => room_state
                     .connections
                     .iter()
-                    .filter(|connection| connection.id != self.id)
-                    .for_each(|connection| {
-                        connection.addr.do_send(msg.clone());
+                    .filter(|&(id, _)| id != &self.id)
+                    .for_each(|(_, addr)| {
+                        addr.do_send(msg.clone());
                     }),
                 None => {
                     tracing::error!("Invalid room on sessions: {name:?}");
                 }
             },
             None => {
-                tracing::info!("No room setted");
+                tracing::info!("No connected to any room.");
             }
         }
     }
@@ -96,14 +93,15 @@ impl WSSession {
     }
 
     /// Connects to a room and returns room information to the client
-    #[tracing::instrument(skip(self))]
+    #[tracing::instrument(skip(self, addr))]
     fn room_connect(&mut self, room_name: String, addr: Recipient<ClientMessage>) -> ClientMessage {
         self.room = Some(room_name.clone());
         match self.state.rooms.lock().unwrap().get_mut(&room_name) {
             Some(room_state) => {
-                room_state
-                    .connections
-                    .push(RoomConnectionInfo { id: self.id, addr });
+                if room_state.connections.insert(self.id, addr).is_some() {
+                    tracing::warn!("Room already exists.");
+                    return ClientMessage::internal_error();
+                }
             }
             None => {
                 return ClientMessage::Error(format!("Room not found {room_name:?}"));
@@ -121,8 +119,22 @@ impl Actor for WSSession {
     }
 
     fn stopped(&mut self, _ctx: &mut Self::Context) {
+        match &self.room {
+            Some(name) => match self.state.rooms.lock().unwrap().get_mut(name) {
+                Some(room_state) => {
+                    if room_state.connections.remove(&self.id).is_none() {
+                        tracing::warn!("Couldn't remove session.");
+                    }
+                }
+                None => {
+                    tracing::error!("Invalid room on sessions: {name:?}");
+                }
+            },
+            None => {
+                tracing::info!("No connected to any room.");
+            }
+        }
         let msg = self.get_room_info();
-        tracing::error!("==========> msg: {msg:?}");
         self.broadcast_message(msg);
     }
 }
@@ -137,7 +149,7 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WSSession {
         let msg = match item {
             Ok(msg) => msg,
             Err(e) => {
-                tracing::error!("Unexpected error: {:?}", e);
+                tracing::error!(error.cause_chain =? e, error.message = %e, "Unexpected error.");
                 ctx.stop();
                 return;
             }

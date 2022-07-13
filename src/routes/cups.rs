@@ -35,13 +35,13 @@ pub async fn get_cups_info(state: web::Data<AppState>) -> web::Json<CupsInfo> {
     web::Json(cups_info)
 }
 
-#[derive(Deserialize, TS)]
+#[derive(Debug, Deserialize, TS)]
 #[ts(export, export_to = "frontend/bindings/")]
 pub struct CreateRoom {
     new_room: String,
 }
 
-#[tracing::instrument(skip_all)]
+#[tracing::instrument(skip(state))]
 pub async fn create_room(
     form: web::Json<CreateRoom>,
     state: web::Data<AppState>,
@@ -49,7 +49,7 @@ pub async fn create_room(
     let room_name = form.into_inner().new_room;
     let mut rooms = state.rooms.lock().unwrap();
     if rooms
-        .insert(room_name.clone(), RoomState::default())
+        .insert(room_name.clone(), RoomState::new(room_name.clone()))
         .is_none()
     {
         Ok(HttpResponse::Ok().finish())

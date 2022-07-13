@@ -8,14 +8,17 @@ pub struct AppState {
     pub rooms: Mutex<HashMap<String, RoomState>>,
 }
 
-#[derive(Default, Debug, Clone)]
+#[derive(Debug, Clone)]
 pub struct RoomState {
     pub name: String,
-    pub connections: Vec<RoomConnectionInfo>,
+    pub connections: HashMap<Uuid, Recipient<ClientMessage>>,
 }
 
-#[derive(Debug, Clone)]
-pub struct RoomConnectionInfo {
-    pub id: Uuid,
-    pub addr: Recipient<ClientMessage>,
+impl RoomState {
+    pub fn new(name: String) -> Self {
+        Self {
+            name,
+            connections: HashMap::new(),
+        }
+    }
 }
