@@ -1,8 +1,7 @@
 //! Web socket messages
 
-use crate::state::RoomState;
-
 use super::error::WSError;
+use crate::state::RoomState;
 use actix::Message;
 use anyhow::Context;
 use serde::{Deserialize, Serialize};
