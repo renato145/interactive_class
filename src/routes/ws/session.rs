@@ -1,13 +1,18 @@
 use super::{
-    message::{ClientMessage, RoomInfo, WSMessage},
+    message::{ClientMessage, WSMessage},
     ws,
 };
-use crate::{configuration::WSSettings, state::AppState};
-use actix::{Actor, ActorContext, AsyncContext, Handler, StreamHandler};
+use crate::{
+    configuration::WSSettings,
+    state::{AppState, RoomConnectionInfo},
+};
+use actix::{Actor, ActorContext, AsyncContext, Handler, Recipient, StreamHandler};
 use actix_web::web;
 use std::{str::FromStr, time::Instant};
+use uuid::Uuid;
 
 pub struct WSSession {
+    id: Uuid,
     hb: Instant,
     room: Option<String>,
     state: web::Data<AppState>,
@@ -17,6 +22,7 @@ pub struct WSSession {
 impl WSSession {
     pub fn new(state: web::Data<AppState>, settings: WSSettings) -> Self {
         Self {
+            id: Uuid::new_v4(),
             hb: Instant::now(),
             room: None,
             state,
@@ -44,7 +50,9 @@ impl WSSession {
         let addr = ctx.address();
         match WSMessage::from_str(msg) {
             Ok(msg) => match msg {
-                WSMessage::RoomConnect(room_name) => addr.do_send(self.room_connect(room_name)),
+                WSMessage::RoomConnect(room_name) => {
+                    addr.do_send(self.room_connect(room_name, addr.clone().recipient()))
+                }
             },
             Err(e) => {
                 tracing::error!("{:?}", e);
@@ -53,18 +61,31 @@ impl WSSession {
         }
     }
 
-    #[tracing::instrument(skip(self, ctx))]
-    fn broadcast_message(&mut self, msg: &str, ctx: &mut ws::WebsocketContext<WSSession>) {
-        tracing::error!("BROADCASTING {msg}");
+    #[tracing::instrument(skip(self))]
+    fn broadcast_message(&mut self, msg: ClientMessage) {
+        match &self.room {
+            Some(name) => match self.state.rooms.lock().unwrap().get(name) {
+                Some(room_state) => room_state
+                    .connections
+                    .iter()
+                    .filter(|connection| connection.id != self.id)
+                    .for_each(|connection| {
+                        connection.addr.do_send(msg.clone());
+                    }),
+                None => {
+                    tracing::error!("Invalid room on sessions: {name:?}");
+                }
+            },
+            None => {
+                tracing::info!("No room setted");
+            }
+        }
     }
 
     fn get_room_info(&self) -> ClientMessage {
         match &self.room {
             Some(name) => match self.state.rooms.lock().unwrap().get(name) {
-                Some(&connections) => ClientMessage::RoomInfo(RoomInfo {
-                    name: name.clone(),
-                    connections,
-                }),
+                Some(room_state) => ClientMessage::RoomInfo(room_state.clone().into()),
                 None => {
                     tracing::error!("Invalid room on sessions: {name:?}");
                     ClientMessage::internal_error()
@@ -76,11 +97,13 @@ impl WSSession {
 
     /// Connects to a room and returns room information to the client
     #[tracing::instrument(skip(self))]
-    fn room_connect(&mut self, room_name: String) -> ClientMessage {
+    fn room_connect(&mut self, room_name: String, addr: Recipient<ClientMessage>) -> ClientMessage {
         self.room = Some(room_name.clone());
         match self.state.rooms.lock().unwrap().get_mut(&room_name) {
-            Some(connections) => {
-                *connections += 1;
+            Some(room_state) => {
+                room_state
+                    .connections
+                    .push(RoomConnectionInfo { id: self.id, addr });
             }
             None => {
                 return ClientMessage::Error(format!("Room not found {room_name:?}"));
@@ -97,8 +120,10 @@ impl Actor for WSSession {
         self.hb(ctx);
     }
 
-    fn stopped(&mut self, ctx: &mut Self::Context) {
-        self.broadcast_message("lalala", ctx);
+    fn stopped(&mut self, _ctx: &mut Self::Context) {
+        let msg = self.get_room_info();
+        tracing::error!("==========> msg: {msg:?}");
+        self.broadcast_message(msg);
     }
 }
 

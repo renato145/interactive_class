@@ -1,5 +1,7 @@
 //! Web socket messages
 
+use crate::state::RoomState;
+
 use super::error::WSError;
 use actix::Message;
 use anyhow::Context;
@@ -28,7 +30,7 @@ impl FromStr for WSMessage {
 }
 
 /// Message to respond to client
-#[derive(Debug, Deserialize, Serialize, Message, TS)]
+#[derive(Clone, Debug, Deserialize, Serialize, Message, TS)]
 #[rtype(result = "()")]
 #[serde(tag = "kind", content = "payload")]
 #[ts(export, export_to = "frontend/bindings/")]
@@ -43,15 +45,24 @@ impl ClientMessage {
     }
 }
 
-#[derive(Debug, Deserialize, Serialize, TS)]
+impl From<WSError> for ClientMessage {
+    fn from(e: WSError) -> Self {
+        Self::Error(e.to_string())
+    }
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize, TS)]
 #[ts(export, export_to = "frontend/bindings/")]
 pub struct RoomInfo {
     pub name: String,
     pub connections: usize,
 }
 
-impl From<WSError> for ClientMessage {
-    fn from(e: WSError) -> Self {
-        Self::Error(e.to_string())
+impl From<RoomState> for RoomInfo {
+    fn from(state: RoomState) -> Self {
+        Self {
+            name: state.name,
+            connections: state.connections.len(),
+        }
     }
 }

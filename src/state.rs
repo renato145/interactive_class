@@ -1,19 +1,21 @@
 use crate::routes::message::ClientMessage;
 use actix::Recipient;
 use std::{collections::HashMap, sync::Mutex};
+use uuid::Uuid;
 
-#[derive(Debug)]
+#[derive(Default, Debug)]
 pub struct AppState {
     pub rooms: Mutex<HashMap<String, RoomState>>,
 }
 
-#[derive(Debug)]
+#[derive(Default, Debug, Clone)]
 pub struct RoomState {
+    pub name: String,
     pub connections: Vec<RoomConnectionInfo>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct RoomConnectionInfo {
-    pub id: String,
+    pub id: Uuid,
     pub addr: Recipient<ClientMessage>,
 }

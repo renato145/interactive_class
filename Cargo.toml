@@ -16,6 +16,7 @@ serde = { version = "1.0", features = ["derive"] }
 config = { version = "0.13", default-features = false, features = ["yaml"] }
 secrecy = { version = "0.8", features = ["serde"] }
 ts-rs = "6.1"
+uuid = { version = "1.1", features = ["v4"] }
 
 actix = "0.13"
 actix-web = "4.1"

@@ -1,4 +1,8 @@
-use crate::{error_chain_fmt, state::AppState, utils::e400};
+use crate::{
+    error_chain_fmt,
+    state::{AppState, RoomState},
+    utils::e400,
+};
 use actix_web::{web, HttpResponse};
 use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
@@ -44,7 +48,10 @@ pub async fn create_room(
 ) -> Result<HttpResponse, actix_web::Error> {
     let room_name = form.into_inner().new_room;
     let mut rooms = state.rooms.lock().unwrap();
-    if rooms.insert(room_name.clone(), 0).is_none() {
+    if rooms
+        .insert(room_name.clone(), RoomState::default())
+        .is_none()
+    {
         Ok(HttpResponse::Ok().finish())
     } else {
         Err(e400(CupsError::RoomAlreadyExists(room_name)))
