@@ -10,6 +10,7 @@
   const send_msg = () => {
     sendWSMessage({
       task: "RoomConnect",
+      payload: "roomName"
     });
   };
 
