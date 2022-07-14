@@ -1,24 +1,34 @@
-import { readable } from "svelte/store";
+import { writable } from "svelte/store";
 import type { WSMessage } from "bindings/WSMessage";
 import type { ClientMessage } from "bindings/ClientMessage";
 
 let ws: WebSocket;
 
+export const wsStatusStore = writable<"disconnected" | "connected" | "working">(
+  "disconnected"
+);
+
 const initWS = () => {
   const ws = new WebSocket("ws://localhost:8000/ws");
   ws.onopen = () => {
     console.log("Starting WebSocket...");
+    wsStatusStore.set("connected");
   };
   ws.onmessage = (ev) => {
-    const msg = ev.data as ClientMessage;
-    console.log("Recieved: ", JSON.stringify(msg));
+    wsStatusStore.set("working");
+    const msg = JSON.parse(ev.data);
+    console.log("Recieved: ", msg);
+    wsMessageStore.set(msg);
+    wsStatusStore.set("connected");
   };
   // ws.onerror
-  // ws.onclose
+  ws.onclose = (ev) => {
+    wsStatusStore.set("disconnected");
+  };
   return ws;
 };
 
-export const wsMessageStore = readable("", () => {
+export const wsMessageStore = writable<ClientMessage>(null, () => {
   ws = initWS();
 
   return () => {

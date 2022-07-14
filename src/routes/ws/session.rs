@@ -99,8 +99,7 @@ impl WSSession {
         match self.state.rooms.lock().unwrap().get_mut(&room_name) {
             Some(room_state) => {
                 if room_state.connections.insert(self.id, addr).is_some() {
-                    tracing::warn!("Room already exists.");
-                    return ClientMessage::internal_error();
+                    return ClientMessage::Error("Client already connected.".to_string());
                 }
             }
             None => {
