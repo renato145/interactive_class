@@ -33,17 +33,16 @@
   <div class="mt-4">
     <WsError error_msg={$wsStore.error_msg} />
   </div>
-  <div class="ml-8 mt-4">
-    <div
-      class="bg-gray-300 w-[300px] h-[400px] rounded shadow ring ring-gray-500"
-    >
-      <CupBlock color="Red" cupPerc={redCups} />
-      <CupBlock color="Yellow" cupPerc={yellowCups} />
-      <CupBlock color="Green" cupPerc={greenCups} />
+  <div class="ml-8 mt-8">
+    <div class="w-[300px] h-[400px] rounded shadow ring ring-gray-500">
+      <CupBlock color="Red" cupPerc={redCups} cups={$wsStore.cups.red} />
+      <CupBlock
+        color="Yellow"
+        cupPerc={yellowCups}
+        cups={$wsStore.cups.yellow}
+      />
+      <CupBlock color="Green" cupPerc={greenCups} cups={$wsStore.cups.green} />
+      <CupBlock cupPerc={unanswered / $wsStore.connections} cups={unanswered} />
     </div>
-    <p>Green: {$wsStore.cups.green}</p>
-    <p>Yellow: {$wsStore.cups.yellow}</p>
-    <p>Red: {$wsStore.cups.red}</p>
-    <p>Unanswered: {unanswered}</p>
   </div>
 </div>
