@@ -171,3 +171,50 @@ async fn get_room_info_refreshes_when_second_student_disconnects() {
         msg => panic!("Invalid msg: {msg:?}"),
     }
 }
+
+#[actix_rt::test]
+async fn teacher_gets_msg_when_student_chooses_a_cup() {
+    // Arrange
+    let app = spawn_app().await;
+    let room_name = "test_room";
+    let teacher_connect_msg = serde_json::json!({
+        "task": "RoomConnect",
+        "payload": {
+            "room_name": room_name,
+            "connection_type": "Teacher"
+        }
+    });
+    let student_connect_msg = serde_json::json!({
+        "task": "RoomConnect",
+        "payload": {
+            "room_name": room_name,
+            "connection_type": "Student"
+        }
+    });
+    let student_cup_msg = serde_json::json!({
+        "task": "ChooseCup",
+        "payload": "Yellow"
+    });
+
+    // Act
+    // Create room
+    app.create_cups_room(room_name).await;
+    // Start connections
+    let mut teacher_connection = app.get_ws_connection().await;
+    send_ws_msg(&mut teacher_connection, teacher_connect_msg).await;
+    let mut student_connection = app.get_ws_connection().await;
+    send_ws_msg(&mut student_connection, student_connect_msg).await;
+    // Student chooses a cup
+    send_ws_msg(&mut student_connection, student_cup_msg).await;
+    // Get cup info message
+    let msg = get_next_ws_msg(&mut teacher_connection).await;
+
+    // Assert
+    match msg {
+        ClientMessage::RoomInfo(msg) => {
+            assert_eq!(&msg.name, room_name);
+            assert_eq!(msg.yellow, 1);
+        }
+        msg => panic!("Invalid msg: {msg:?}"),
+    }
+}
