@@ -3,7 +3,10 @@ use super::{
     message::{ClientMessage, ConnectionType, CupColor, RoomConnectInfo, WSMessage},
     ws,
 };
-use crate::{configuration::WSSettings, state::AppState};
+use crate::{
+    configuration::WSSettings,
+    state::{AppState, StudentInfo},
+};
 use actix::{Actor, ActorContext, Addr, AsyncContext, Handler, StreamHandler};
 use actix_web::web;
 use std::{str::FromStr, time::Instant};
@@ -68,12 +71,16 @@ impl WSSession {
             Some(name) => match self.state.rooms.lock().unwrap().get(name) {
                 Some(room_state) => {
                     let connections = match connection_type {
-                        ConnectionType::Student => &room_state.student_connections,
-                        ConnectionType::Teacher => &room_state.teacher_connections,
+                        ConnectionType::Student => room_state
+                            .student_connections
+                            .iter()
+                            .map(|(a, b)| (a, &b.connection))
+                            .collect::<Vec<_>>(),
+                        ConnectionType::Teacher => room_state.teacher_connections.iter().collect(),
                     };
 
                     connections
-                        .iter()
+                        .into_iter()
                         .filter(|&(id, _)| id != &self.id)
                         .for_each(|(_, addr)| {
                             addr.do_send(message.clone());
@@ -117,14 +124,17 @@ impl WSSession {
         self.room = Some(room_name.clone());
         let msg = match self.state.rooms.lock().unwrap().get_mut(&room_name) {
             Some(room_state) => {
-                let connections = match room_info.connection_type {
-                    ConnectionType::Student => &mut room_state.student_connections,
-                    ConnectionType::Teacher => &mut room_state.teacher_connections,
+                let added = match room_info.connection_type {
+                    ConnectionType::Student => room_state
+                        .student_connections
+                        .insert(self.id, StudentInfo::new(addr.clone().recipient()))
+                        .is_none(),
+                    ConnectionType::Teacher => room_state
+                        .teacher_connections
+                        .insert(self.id, addr.clone().recipient())
+                        .is_none(),
                 };
-                if connections
-                    .insert(self.id, addr.clone().recipient())
-                    .is_none()
-                {
+                if added {
                     Ok(())
                 } else {
                     Err(WSError::AlreadyConnected)
@@ -151,10 +161,10 @@ impl WSSession {
     fn choose_cup(&mut self, color: CupColor, addr: Addr<Self>) {
         let msg = match &self.room {
             Some(room) => match self.state.rooms.lock().unwrap().get_mut(room) {
-                Some(room_state) => {
-                    room_state.add_cup(color);
-                    ClientMessage::Ok
-                }
+                Some(room_state) => match room_state.choose_cup(&self.id, color) {
+                    Ok(_) => ClientMessage::Ok,
+                    Err(e) => WSError::from(e).into(),
+                },
                 None => WSError::InvalidRoom(room.clone()).into(),
             },
             None => WSError::NoRoom.into(),

@@ -42,7 +42,7 @@ pub enum ConnectionType {
     Teacher,
 }
 
-#[derive(Debug, Deserialize, TS)]
+#[derive(Clone, Debug, Deserialize, TS)]
 #[ts(export, export_to = "frontend/bindings/")]
 pub enum CupColor {
     Green,
@@ -86,12 +86,31 @@ pub struct RoomInfo {
 
 impl From<RoomState> for RoomInfo {
     fn from(state: RoomState) -> Self {
+        let (green, yellow, red) =
+            state
+                .student_connections
+                .values()
+                .fold((0, 0, 0), |mut acc, d| {
+                    match d.cup_selection {
+                        Some(CupColor::Green) => {
+                            acc.0 += 1;
+                        }
+                        Some(CupColor::Yellow) => {
+                            acc.1 += 1;
+                        }
+                        Some(CupColor::Red) => {
+                            acc.2 += 1;
+                        }
+                        _ => {}
+                    }
+                    acc
+                });
         Self {
             name: state.name,
             connections: state.student_connections.len(),
-            green: state.green,
-            yellow: state.yellow,
-            red: state.red,
+            green,
+            yellow,
+            red,
         }
     }
 }

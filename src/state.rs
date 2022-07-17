@@ -1,7 +1,20 @@
-use crate::routes::message::{ClientMessage, CupColor};
+use crate::routes::message::ClientMessage;
+use crate::{error_chain_fmt, routes::message::CupColor};
 use actix::Recipient;
 use std::{collections::HashMap, sync::Mutex};
 use uuid::Uuid;
+
+#[derive(thiserror::Error)]
+pub enum StateError {
+    #[error("Invalid client id.")]
+    InvalidId,
+}
+
+impl std::fmt::Debug for StateError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        error_chain_fmt(self, f)
+    }
+}
 
 #[derive(Default, Debug)]
 pub struct AppState {
@@ -11,11 +24,8 @@ pub struct AppState {
 #[derive(Debug, Clone)]
 pub struct RoomState {
     pub name: String,
-    pub student_connections: HashMap<Uuid, Recipient<ClientMessage>>,
+    pub student_connections: HashMap<Uuid, StudentInfo>,
     pub teacher_connections: HashMap<Uuid, Recipient<ClientMessage>>,
-    pub green: usize,
-    pub yellow: usize,
-    pub red: usize,
 }
 
 impl RoomState {
@@ -24,17 +34,31 @@ impl RoomState {
             name,
             student_connections: HashMap::new(),
             teacher_connections: HashMap::new(),
-            green: 0,
-            yellow: 0,
-            red: 0,
         }
     }
 
-    pub fn add_cup(&mut self, color: CupColor) {
-        match color {
-            CupColor::Green => self.green += 1,
-            CupColor::Yellow => self.yellow += 1,
-            CupColor::Red => self.red += 1,
+    pub fn choose_cup(&mut self, id: &Uuid, color: CupColor) -> Result<(), StateError> {
+        match self.student_connections.get_mut(id) {
+            Some(data) => {
+                data.cup_selection = Some(color);
+                Ok(())
+            }
+            None => Err(StateError::InvalidId),
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct StudentInfo {
+    pub connection: Recipient<ClientMessage>,
+    pub cup_selection: Option<CupColor>,
+}
+
+impl StudentInfo {
+    pub fn new(connection: Recipient<ClientMessage>) -> Self {
+        Self {
+            connection,
+            cup_selection: None,
         }
     }
 }
