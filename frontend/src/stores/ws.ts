@@ -4,25 +4,25 @@ import type { ClientMessage } from "bindings/ClientMessage";
 
 let ws: WebSocket;
 
-export const wsStatusStore = writable<"disconnected" | "connected" | "working">(
-  "disconnected"
-);
+export const wsStatusStore = writable<
+  "disconnected" | "started" | "connected2room" | "working"
+>("disconnected");
 
 const initWS = () => {
   const ws = new WebSocket("ws://localhost:8000/ws");
   ws.onopen = () => {
     console.log("Starting WebSocket...");
-    wsStatusStore.set("connected");
+    wsStatusStore.set("started");
   };
   ws.onmessage = (ev) => {
     wsStatusStore.set("working");
     const msg = JSON.parse(ev.data);
     console.log("Recieved: ", msg);
     wsMessageStore.set(msg);
-    wsStatusStore.set("connected");
+    wsStatusStore.set("connected2room");
   };
   // ws.onerror
-  ws.onclose = (ev) => {
+  ws.onclose = () => {
     wsStatusStore.set("disconnected");
   };
   return ws;
