@@ -204,6 +204,7 @@ async fn teacher_gets_msg_when_student_chooses_a_cup() {
     send_ws_msg(&mut teacher_connection, teacher_connect_msg).await;
     let mut student_connection = app.get_ws_connection().await;
     send_ws_msg(&mut student_connection, student_connect_msg).await;
+    get_next_ws_msg(&mut teacher_connection).await;
     // Student chooses a cup
     send_ws_msg(&mut student_connection, student_cup_msg).await;
     // Get cup info message
