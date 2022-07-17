@@ -50,7 +50,7 @@ impl WSSession {
                 WSMessage::RoomConnect(room_info) => {
                     self.room_connect(room_info, addr);
                 }
-                WSMessage::ChooseCup(color) => {
+                WSMessage::ChooseCup(_color) => {
                     // notify teacher
                     todo!()
                 }
@@ -63,16 +63,22 @@ impl WSSession {
     }
 
     #[tracing::instrument(skip(self))]
-    fn broadcast_message(&mut self, msg: ClientMessage) {
+    fn broadcast_message(&self, msg: ClientMessage, connection_type: ConnectionType) {
         match &self.room {
             Some(name) => match self.state.rooms.lock().unwrap().get(name) {
-                Some(room_state) => room_state
-                    .student_connections
-                    .iter()
-                    .filter(|&(id, _)| id != &self.id)
-                    .for_each(|(_, addr)| {
-                        addr.do_send(msg.clone());
-                    }),
+                Some(room_state) => {
+                    let connections = match connection_type {
+                        ConnectionType::Student => &room_state.student_connections,
+                        ConnectionType::Teacher => &room_state.teacher_connections,
+                    };
+
+                    connections
+                        .iter()
+                        .filter(|&(id, _)| id != &self.id)
+                        .for_each(|(_, addr)| {
+                            addr.do_send(msg.clone());
+                        })
+                }
                 None => {
                     tracing::error!("Invalid room on sessions: {name:?}");
                 }
@@ -81,6 +87,12 @@ impl WSSession {
                 tracing::info!("No connected to any room.");
             }
         }
+    }
+
+    #[tracing::instrument(skip(self))]
+    fn broadcast_all(&self, msg: ClientMessage) {
+        self.broadcast_message(msg.clone(), ConnectionType::Teacher);
+        self.broadcast_message(msg.clone(), ConnectionType::Student);
     }
 
     fn get_room_info(&self) -> ClientMessage {
@@ -111,15 +123,29 @@ impl WSSession {
                     .insert(self.id, addr.clone().recipient())
                     .is_none()
                 {
-                    self.get_room_info()
+                    None
                 } else {
-                    ClientMessage::Error("Client already connected.".to_string())
+                    Some(ClientMessage::Error(
+                        "Client already connected.".to_string(),
+                    ))
                 }
             }
-            None => ClientMessage::Error(format!("Room not found {room_name:?}")),
+            None => Some(ClientMessage::Error(format!(
+                "Room not found {room_name:?}"
+            ))),
         };
-        addr.do_send(msg.clone());
-        self.broadcast_message(msg);
+        match msg {
+            None => {
+                let msg = self.get_room_info();
+                addr.do_send(msg.clone());
+                if let ConnectionType::Student = room_info.connection_type {
+                    self.broadcast_message(msg, ConnectionType::Teacher);
+                }
+            }
+            Some(msg) => {
+                addr.do_send(msg.clone());
+            }
+        }
     }
 }
 
@@ -147,7 +173,7 @@ impl Actor for WSSession {
             }
         }
         let msg = self.get_room_info();
-        self.broadcast_message(msg);
+        self.broadcast_all(msg);
     }
 }
 

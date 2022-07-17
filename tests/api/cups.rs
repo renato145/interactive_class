@@ -46,13 +46,16 @@ async fn get_cups_info_after_rooms_are_created() {
 }
 
 #[actix_rt::test]
-async fn get_room_info_when_client_connects() {
+async fn get_room_info_when_student_connects() {
     // Arrange
     let app = spawn_app().await;
     let room_name = "test_room";
     let msg = serde_json::json!({
         "task": "RoomConnect",
-        "payload": room_name
+        "payload": {
+            "room_name": room_name,
+            "connection_type": "Student"
+        }
     });
 
     // Act

@@ -128,7 +128,15 @@ pub async fn send_ws_msg(
         .send(Message::Text(msg.to_string().into()))
         .await
         .expect("Failed to send message.");
-    get_next_ws_msg(connection).await
+
+    tokio::select! {
+        msg = get_next_ws_msg(connection) => {
+            msg
+        }
+        _ = tokio::time::sleep(Duration::from_millis(750)) => {
+            panic!("send_ws_msg: Timed out")
+        }
+    }
 }
 
 #[allow(unused)]
