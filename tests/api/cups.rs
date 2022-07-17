@@ -246,3 +246,59 @@ async fn choosing_cup_fails_if_not_connected_to_room() {
         msg => panic!("Invalid msg: {msg:?}"),
     }
 }
+
+#[actix_rt::test]
+async fn changing_cup_color_works() {
+    // Arrange
+    let app = spawn_app().await;
+    let room_name = "test_room";
+    let teacher_connect_msg = serde_json::json!({
+        "task": "RoomConnect",
+        "payload": {
+            "room_name": room_name,
+            "connection_type": "Teacher"
+        }
+    });
+    let student_connect_msg = serde_json::json!({
+        "task": "RoomConnect",
+        "payload": {
+            "room_name": room_name,
+            "connection_type": "Student"
+        }
+    });
+    let student_cup_msg1 = serde_json::json!({
+        "task": "ChooseCup",
+        "payload": "Yellow"
+    });
+    let student_cup_msg2 = serde_json::json!({
+        "task": "ChooseCup",
+        "payload": "Red"
+    });
+
+    // Act
+    // Create room
+    app.create_cups_room(room_name).await;
+    // Start connections
+    let mut teacher_connection = app.get_ws_connection().await;
+    send_ws_msg(&mut teacher_connection, teacher_connect_msg).await;
+    let mut student_connection = app.get_ws_connection().await;
+    send_ws_msg(&mut student_connection, student_connect_msg).await;
+    get_next_ws_msg(&mut teacher_connection).await;
+    // Student chooses a cup
+    send_ws_msg(&mut student_connection, student_cup_msg1).await;
+    get_next_ws_msg(&mut teacher_connection).await;
+    // Student choose a different cup
+    send_ws_msg(&mut student_connection, student_cup_msg2).await;
+    // Get cup info message
+    let msg = get_next_ws_msg(&mut teacher_connection).await;
+
+    // Assert
+    match msg {
+        ClientMessage::RoomInfo(msg) => {
+            assert_eq!(&msg.name, room_name);
+            assert_eq!(msg.yellow, 0);
+            assert_eq!(msg.red, 1);
+        }
+        msg => panic!("Invalid msg: {msg:?}"),
+    }
+}
