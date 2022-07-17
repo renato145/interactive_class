@@ -1,14 +1,15 @@
 <script lang="ts">
-  import { wsStatusStore } from "../stores/ws";
+  import type { WSData } from "../stores/ws";
+  export let status: WSData["status"];
   let klass = "";
   export { klass as class };
 </script>
 
 <div
   class={`h-4 w-4 rounded-full shadow-xl ${
-    $wsStatusStore === "connected2room"
+    status === "connected"
       ? "bg-green-600"
-      : $wsStatusStore === "working"
+      : status === "working"
       ? "bg-yellow-500"
       : "bg-red-500"
   } ${klass}`}
