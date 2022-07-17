@@ -1,10 +1,9 @@
 <script lang="ts">
-  import { Link as a } from "svelte-navigator";
   import WsStatus from "../components/WSStatus.svelte";
   import { getWSStore } from "../stores/ws";
   export let roomName;
 
-  let wsStore = getWSStore(roomName, "teacher");
+  let wsStore = getWSStore(roomName, "Teacher");
 </script>
 
 <div>

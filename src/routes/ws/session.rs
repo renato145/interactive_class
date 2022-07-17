@@ -1,9 +1,9 @@
 use super::{
-    message::{ClientMessage, WSMessage},
+    message::{ClientMessage, ConnectionType, RoomConnectInfo, WSMessage},
     ws,
 };
 use crate::{configuration::WSSettings, state::AppState};
-use actix::{Actor, ActorContext, AsyncContext, Handler, Recipient, StreamHandler};
+use actix::{Actor, ActorContext, Addr, AsyncContext, Handler, StreamHandler};
 use actix_web::web;
 use std::{str::FromStr, time::Instant};
 use uuid::Uuid;
@@ -47,10 +47,8 @@ impl WSSession {
         let addr = ctx.address();
         match WSMessage::from_str(msg) {
             Ok(msg) => match msg {
-                WSMessage::RoomConnect(room_name) => {
-                    let msg = self.room_connect(room_name, addr.clone().recipient());
-                    addr.do_send(msg.clone());
-                    self.broadcast_message(msg);
+                WSMessage::RoomConnect(room_info) => {
+                    self.room_connect(room_info, addr);
                 }
                 WSMessage::ChooseCup(color) => {
                     // notify teacher
@@ -69,7 +67,7 @@ impl WSSession {
         match &self.room {
             Some(name) => match self.state.rooms.lock().unwrap().get(name) {
                 Some(room_state) => room_state
-                    .connections
+                    .student_connections
                     .iter()
                     .filter(|&(id, _)| id != &self.id)
                     .for_each(|(_, addr)| {
@@ -100,19 +98,28 @@ impl WSSession {
 
     /// Connects to a room and returns room information to the client
     #[tracing::instrument(skip(self, addr))]
-    fn room_connect(&mut self, room_name: String, addr: Recipient<ClientMessage>) -> ClientMessage {
+    fn room_connect(&mut self, room_info: RoomConnectInfo, addr: Addr<Self>) {
+        let room_name = room_info.room_name;
         self.room = Some(room_name.clone());
-        match self.state.rooms.lock().unwrap().get_mut(&room_name) {
+        let msg = match self.state.rooms.lock().unwrap().get_mut(&room_name) {
             Some(room_state) => {
-                if room_state.connections.insert(self.id, addr).is_some() {
-                    return ClientMessage::Error("Client already connected.".to_string());
+                let connections = match room_info.connection_type {
+                    ConnectionType::Student => &mut room_state.student_connections,
+                    ConnectionType::Teacher => &mut room_state.teacher_connections,
+                };
+                if connections
+                    .insert(self.id, addr.clone().recipient())
+                    .is_none()
+                {
+                    self.get_room_info()
+                } else {
+                    ClientMessage::Error("Client already connected.".to_string())
                 }
             }
-            None => {
-                return ClientMessage::Error(format!("Room not found {room_name:?}"));
-            }
+            None => ClientMessage::Error(format!("Room not found {room_name:?}")),
         };
-        self.get_room_info()
+        addr.do_send(msg.clone());
+        self.broadcast_message(msg);
     }
 }
 
@@ -127,7 +134,7 @@ impl Actor for WSSession {
         match &self.room {
             Some(name) => match self.state.rooms.lock().unwrap().get_mut(name) {
                 Some(room_state) => {
-                    if room_state.connections.remove(&self.id).is_none() {
+                    if room_state.student_connections.remove(&self.id).is_none() {
                         tracing::warn!("Couldn't remove session.");
                     }
                 }

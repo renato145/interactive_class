@@ -14,7 +14,7 @@ use ts_rs::TS;
 #[serde(tag = "task", content = "payload")]
 #[ts(export, export_to = "frontend/bindings/")]
 pub enum WSMessage {
-    RoomConnect(String),
+    RoomConnect(RoomConnectInfo),
     ChooseCup(CupColor),
 }
 
@@ -29,7 +29,21 @@ impl FromStr for WSMessage {
     }
 }
 
-#[derive(Deserialize, TS)]
+#[derive(Debug, Deserialize, TS)]
+#[ts(export, export_to = "frontend/bindings/")]
+pub struct RoomConnectInfo {
+    pub room_name: String,
+    pub connection_type: ConnectionType,
+}
+
+#[derive(Debug, Deserialize, TS)]
+#[ts(export, export_to = "frontend/bindings/")]
+pub enum ConnectionType {
+    Student,
+    Teacher,
+}
+
+#[derive(Debug, Deserialize, TS)]
 #[ts(export, export_to = "frontend/bindings/")]
 pub enum CupColor {
     Green,
@@ -70,7 +84,7 @@ impl From<RoomState> for RoomInfo {
     fn from(state: RoomState) -> Self {
         Self {
             name: state.name,
-            connections: state.connections.len(),
+            connections: state.student_connections.len(),
         }
     }
 }

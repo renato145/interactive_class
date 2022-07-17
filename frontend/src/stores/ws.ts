@@ -1,9 +1,10 @@
 import { writable } from "svelte/store";
 import type { WSMessage } from "bindings/WSMessage";
 import type { ClientMessage } from "bindings/ClientMessage";
+import type { ConnectionType } from "bindings/ConnectionType";
 
 export interface WSData {
-  roomname: string;
+  room_name: string;
   status: "disconnected" | "connected" | "working";
   connections: number;
 }
@@ -12,7 +13,10 @@ export interface WSData {
  * @param roomname
  * @returns wsMessageStore and sendWSMessage
  */
-export const getWSStore = (roomname: string, connection_type: "student" | "teacher") => {
+export const getWSStore = (
+  room_name: string,
+  connection_type: ConnectionType
+) => {
   let ws: WebSocket;
 
   const sendWSMessage = (msg: WSMessage) => {
@@ -26,7 +30,10 @@ export const getWSStore = (roomname: string, connection_type: "student" | "teach
       store.update((d) => ({ ...d, status: "connected" }));
       sendWSMessage({
         task: "RoomConnect",
-        payload: roomname,
+        payload: {
+          room_name,
+          connection_type,
+        },
       });
     };
     ws.onmessage = (ev) => {
@@ -58,7 +65,7 @@ export const getWSStore = (roomname: string, connection_type: "student" | "teach
 
   const store = writable<WSData>(
     {
-      roomname,
+      room_name,
       status: "disconnected",
       connections: 0,
     },

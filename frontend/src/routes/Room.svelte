@@ -3,7 +3,7 @@
   import { getWSStore } from "../stores/ws";
   export let roomName;
 
-  let wsStore = getWSStore(roomName, "student");
+  let wsStore = getWSStore(roomName, "Student");
   let color;
 </script>
 

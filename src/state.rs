@@ -11,14 +11,16 @@ pub struct AppState {
 #[derive(Debug, Clone)]
 pub struct RoomState {
     pub name: String,
-    pub connections: HashMap<Uuid, Recipient<ClientMessage>>,
+    pub student_connections: HashMap<Uuid, Recipient<ClientMessage>>,
+    pub teacher_connections: HashMap<Uuid, Recipient<ClientMessage>>,
 }
 
 impl RoomState {
     pub fn new(name: String) -> Self {
         Self {
             name,
-            connections: HashMap::new(),
+            student_connections: HashMap::new(),
+            teacher_connections: HashMap::new(),
         }
     }
 }
