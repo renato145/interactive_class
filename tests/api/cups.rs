@@ -219,3 +219,30 @@ async fn teacher_gets_msg_when_student_chooses_a_cup() {
         msg => panic!("Invalid msg: {msg:?}"),
     }
 }
+
+#[actix_rt::test]
+async fn choosing_cup_fails_if_not_connected_to_room() {
+    // Arrange
+    let app = spawn_app().await;
+    let room_name = "test_room";
+    let msg = serde_json::json!({
+        "task": "ChooseCup",
+        "payload": "Yellow"
+    });
+
+    // Act
+    // Create room
+    app.create_cups_room(room_name).await;
+    // Start connections
+    let mut connection = app.get_ws_connection().await;
+    // Student chooses a cup
+    let msg = send_ws_msg(&mut connection, msg).await;
+
+    // Assert
+    match msg {
+        ClientMessage::Error(msg) => {
+            assert_eq!(&msg, "No connected to any room.");
+        }
+        msg => panic!("Invalid msg: {msg:?}"),
+    }
+}
