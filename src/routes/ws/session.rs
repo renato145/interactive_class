@@ -48,7 +48,9 @@ impl WSSession {
         match WSMessage::from_str(msg) {
             Ok(msg) => match msg {
                 WSMessage::RoomConnect(room_name) => {
-                    addr.do_send(self.room_connect(room_name, addr.clone().recipient()))
+                    let msg = self.room_connect(room_name, addr.clone().recipient());
+                    addr.do_send(msg.clone());
+                    self.broadcast_message(msg);
                 }
             },
             Err(e) => {
