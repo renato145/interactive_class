@@ -20,4 +20,10 @@
       >
     </p>
   </div>
+  <div class="mt-4">
+    <p>Green: x</p>
+    <p>Yellow: x</p>
+    <p>Red: x</p>
+    <p>Unanswered: x</p>
+  </div>
 </div>
