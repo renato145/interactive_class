@@ -1,10 +1,15 @@
 <script lang="ts">
+  import type { CupColor } from "bindings/CupColor";
   import WsStatus from "../components/WSStatus.svelte";
   import { getWSStore } from "../stores/ws";
   export let roomName;
 
-  let wsStore = getWSStore(roomName, "Student");
-  let color;
+  let { wsStore, chooseCup: chooseCup_ } = getWSStore(roomName, "Student");
+  let color: CupColor;
+  const chooseCup = (cupColor: CupColor) => {
+    color = cupColor;
+    chooseCup_(cupColor);
+  };
 </script>
 
 <div>
@@ -15,11 +20,11 @@
   <div class="mt-8">
     <svg
       class={`mx-auto aspect-square w-1/2 max-w-md ${
-        color === "green"
+        color === "Green"
           ? "fill-green-500"
-          : color === "yellow"
+          : color === "Yellow"
           ? "fill-yellow-300"
-          : color === "red"
+          : color === "Red"
           ? "fill-red-500"
           : "fill-gray-300"
       }`}
@@ -34,7 +39,7 @@
       <button
         class="rounded bg-green-200 p-2 text-left shadow hover:bg-green-400"
         on:click={() => {
-          color = "green";
+          chooseCup("Green");
         }}
       >
         Green - I am comfortable with my understanding and pacing of the lesson
@@ -43,7 +48,7 @@
       <button
         class="rounded bg-yellow-200 p-2 text-left shadow hover:bg-yellow-300"
         on:click={() => {
-          color = "yellow";
+          chooseCup("Yellow");
         }}
       >
         Yellow - I am working through my understanding, I would benefit from the
@@ -53,7 +58,7 @@
       <button
         class="rounded bg-red-200 p-2 text-left shadow hover:bg-red-400"
         on:click={() => {
-          color = "red";
+          chooseCup("Red");
         }}
       >
         Red - STOP! I am not understanding and I have a question

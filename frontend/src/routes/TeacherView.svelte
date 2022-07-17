@@ -3,7 +3,12 @@
   import { getWSStore } from "../stores/ws";
   export let roomName;
 
-  let wsStore = getWSStore(roomName, "Teacher");
+  let { wsStore } = getWSStore(roomName, "Teacher");
+  $: unanswered =
+    $wsStore.connections -
+    $wsStore.cups.green -
+    $wsStore.cups.yellow -
+    $wsStore.cups.red;
 </script>
 
 <div>
@@ -21,9 +26,9 @@
     </p>
   </div>
   <div class="mt-4">
-    <p>Green: x</p>
-    <p>Yellow: x</p>
-    <p>Red: x</p>
-    <p>Unanswered: x</p>
+    <p>Green: {$wsStore.cups.green}</p>
+    <p>Yellow: {$wsStore.cups.yellow}</p>
+    <p>Red: {$wsStore.cups.red}</p>
+    <p>Unanswered: {unanswered}</p>
   </div>
 </div>

@@ -2,11 +2,17 @@ import { writable } from "svelte/store";
 import type { WSMessage } from "bindings/WSMessage";
 import type { ClientMessage } from "bindings/ClientMessage";
 import type { ConnectionType } from "bindings/ConnectionType";
+import type { CupColor } from "bindings/CupColor";
 
 export interface WSData {
   room_name: string;
   status: "disconnected" | "connected" | "working";
   connections: number;
+  cups: {
+    green: number;
+    yellow: number;
+    red: number;
+  };
 }
 
 /**
@@ -23,11 +29,18 @@ export const getWSStore = (
     ws.send(JSON.stringify(msg));
   };
 
+  const chooseCup = (cup: CupColor) => {
+    sendWSMessage({
+      task: "ChooseCup",
+      payload: cup,
+    });
+  };
+
   const initWS = () => {
     const ws = new WebSocket("ws://localhost:8000/ws");
     ws.onopen = () => {
       console.log("Starting WebSocket...");
-      store.update((d) => ({ ...d, status: "connected" }));
+      wsStore.update((d) => ({ ...d, status: "connected" }));
       sendWSMessage({
         task: "RoomConnect",
         payload: {
@@ -37,14 +50,19 @@ export const getWSStore = (
       });
     };
     ws.onmessage = (ev) => {
-      store.update((d) => ({ ...d, status: "working" }));
+      wsStore.update((d) => ({ ...d, status: "working" }));
       const msg = JSON.parse(ev.data) as ClientMessage;
       console.log("Recieved: ", msg);
       switch (msg.kind) {
         case "RoomInfo":
-          store.update((d) => ({
+          wsStore.update((d) => ({
             ...d,
-            connections: +msg.payload.connections,
+            connections: msg.payload.connections,
+            cups: {
+              green: msg.payload.green,
+              yellow: msg.payload.yellow,
+              red: msg.payload.red,
+            },
           }));
           break;
 
@@ -54,20 +72,26 @@ export const getWSStore = (
         default:
           break;
       }
-      store.update((d) => ({ ...d, status: "connected" }));
+      wsStore.update((d) => ({ ...d, status: "connected" }));
     };
     // ws.onerror
     ws.onclose = () => {
-      store.update((d) => ({ ...d, status: "disconnected" }));
+      wsStore.update((d) => ({ ...d, status: "disconnected" }));
     };
+
     return ws;
   };
 
-  const store = writable<WSData>(
+  const wsStore = writable<WSData>(
     {
       room_name,
       status: "disconnected",
       connections: 0,
+      cups: {
+        green: 0,
+        yellow: 0,
+        red: 0,
+      },
     },
     () => {
       {
@@ -81,5 +105,5 @@ export const getWSStore = (
     }
   );
 
-  return store;
+  return { wsStore, chooseCup };
 };
