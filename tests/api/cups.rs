@@ -96,7 +96,7 @@ async fn fail_to_get_room_info_when_student_connects_to_unexisting_room() {
     // Assert
     match msg {
         ClientMessage::Error(msg) => {
-            assert_eq!(&msg, "Room not found \"test_room\"");
+            assert_eq!(&msg, "Invalid room: \"test_room\".");
         }
         msg => panic!("Invalid msg: {msg:?}"),
     }
