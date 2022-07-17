@@ -11,6 +11,8 @@
       ? "bg-green-600"
       : status === "working"
       ? "bg-yellow-500"
-      : "bg-red-500"
+      : status === "error"
+      ? "bg-orange-400"
+      : "bg-red-700"
   } ${klass}`}
 />

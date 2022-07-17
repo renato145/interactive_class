@@ -1,4 +1,5 @@
 <script lang="ts">
+  import WsError from "../components/WSError.svelte";
   import WsStatus from "../components/WSStatus.svelte";
   import { getWSStore } from "../stores/ws";
   export let roomName;
@@ -24,6 +25,9 @@
         >[student view]</a
       >
     </p>
+  </div>
+  <div class="mt-4">
+    <WsError error_msg={$wsStore.error_msg} />
   </div>
   <div class="mt-4">
     <p>Green: {$wsStore.cups.green}</p>

@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { CupColor } from "bindings/CupColor";
+  import WsError from "../components/WSError.svelte";
   import WsStatus from "../components/WSStatus.svelte";
   import { getWSStore } from "../stores/ws";
   export let roomName;
@@ -16,6 +17,9 @@
   <div class="flex align-bottom">
     <WsStatus status={$wsStore.status} class="self-center" />
     <p class="ml-3 text-3xl">Room: {roomName}</p>
+  </div>
+  <div class="mt-4">
+    <WsError error_msg={$wsStore.error_msg} />
   </div>
   <div class="mt-8">
     <svg

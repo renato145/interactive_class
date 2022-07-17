@@ -6,13 +6,14 @@ import type { CupColor } from "bindings/CupColor";
 
 export interface WSData {
   room_name: string;
-  status: "disconnected" | "connected" | "working";
+  status: "disconnected" | "connected" | "working" | "error";
   connections: number;
   cups: {
     green: number;
     yellow: number;
     red: number;
   };
+  error_msg: string | null;
 }
 
 /**
@@ -50,7 +51,7 @@ export const getWSStore = (
       });
     };
     ws.onmessage = (ev) => {
-      wsStore.update((d) => ({ ...d, status: "working" }));
+      wsStore.update((d) => ({ ...d, status: "working", error_msg: null }));
       const msg = JSON.parse(ev.data) as ClientMessage;
       console.log("Recieved: ", msg);
       switch (msg.kind) {
@@ -67,12 +68,19 @@ export const getWSStore = (
           break;
 
         case "Error":
+          wsStore.update((d) => ({
+            ...d,
+            error_msg: msg.payload,
+          }));
           break;
 
         default:
           break;
       }
-      wsStore.update((d) => ({ ...d, status: "connected" }));
+      wsStore.update((d) => {
+        const status = d.error_msg === null ? "connected" : "error";
+        return { ...d, status };
+      });
     };
     // ws.onerror
     ws.onclose = () => {
@@ -92,6 +100,7 @@ export const getWSStore = (
         yellow: 0,
         red: 0,
       },
+      error_msg: null,
     },
     () => {
       {

@@ -40,8 +40,8 @@
       {#each data.rooms as room}
         <li class="text-lg list-disc list-inside">
           <span class="font-medium">{room}:</span>
-          <Link to={`room/${room}`}>[student view]</Link> - <Link
-            to={`room/${room}/teacher`}>[teacher view]</Link
+          <Link to={`room/${room}/teacher`}>[teacher view]</Link> - <Link
+            to={`room/${room}`}>[student view]</Link
           >
         </li>
       {/each}
