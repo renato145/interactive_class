@@ -21,7 +21,7 @@
       body: JSON.stringify(data),
     });
     if (response.ok) {
-      navigate(`room/${new_room}`);
+      navigate(`room/${new_room}/teacher`);
     } else {
       createErrorMsg = await response.text();
     }
@@ -32,11 +32,17 @@
   {#await cups}
     <p>loading...</p>
   {:then data}
-    <p class="text-3xl">{data.rooms.length} Rooms</p>
-    <ul class="ml-4">
+    <p class="text-3xl">
+      {data.rooms.length}
+      {data.rooms.length > 1 ? "Rooms" : "Room"}
+    </p>
+    <ul class="mt-2 ml-4">
       {#each data.rooms as room}
-        <li class="list-disc list-inside">
-          <Link to={`room/${room}`}>{room}</Link>
+        <li class="text-lg list-disc list-inside">
+          <span class="font-medium">{room}:</span>
+          <Link to={`room/${room}`}>[student view]</Link> - <Link
+            to={`room/${room}/teacher`}>[teacher view]</Link
+          >
         </li>
       {/each}
     </ul>

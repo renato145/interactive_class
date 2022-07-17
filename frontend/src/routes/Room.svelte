@@ -3,14 +3,14 @@
   import { getWSStore } from "../stores/ws";
   export let roomName;
 
-  let wsStore = getWSStore(roomName);
+  let wsStore = getWSStore(roomName, "student");
   let color;
 </script>
 
 <div>
   <div class="flex align-bottom">
     <WsStatus status={$wsStore.status} class="self-center" />
-    <p class="ml-3 text-3xl">Room: {roomName} ({$wsStore.connections})</p>
+    <p class="ml-3 text-3xl">Room: {roomName}</p>
   </div>
   <div class="mt-8">
     <svg

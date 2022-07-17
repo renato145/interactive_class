@@ -12,7 +12,7 @@ export interface WSData {
  * @param roomname
  * @returns wsMessageStore and sendWSMessage
  */
-export const getWSStore = (roomname: string) => {
+export const getWSStore = (roomname: string, connection_type: "student" | "teacher") => {
   let ws: WebSocket;
 
   const sendWSMessage = (msg: WSMessage) => {

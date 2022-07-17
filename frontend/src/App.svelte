@@ -2,6 +2,7 @@
   import { Router, Route, Link } from "svelte-navigator";
   import Home from "./routes/Home.svelte";
   import Room from "./routes/Room.svelte";
+  import TeacherView from "./routes/TeacherView.svelte";
 </script>
 
 <Router primary={false}>
@@ -9,13 +10,14 @@
     <nav>
       <Link to="/">Home</Link>
     </nav>
-    <div class="text-6xl">Interactive Class</div>
+    <div class="mt-2 text-6xl">Interactive Class</div>
 
     <div class="mt-8">
       <Route path="/">
         <Home />
       </Route>
       <Route path="/room/:roomName" component={Room} />
+      <Route path="/room/:roomName/teacher" component={TeacherView} />
     </div>
   </div>
 </Router>
