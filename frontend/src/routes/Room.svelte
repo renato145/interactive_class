@@ -14,7 +14,7 @@
   </div>
   <div class="mt-8">
     <svg
-      class={`mx-auto aspect-square w-1/2 ${
+      class={`mx-auto aspect-square w-1/2 max-w-md ${
         color === "green"
           ? "fill-green-500"
           : color === "yellow"
@@ -30,7 +30,7 @@
   </div>
 
   <div class="mt-4">
-    <div class="mx-auto flex w-1/2 flex-col space-y-2">
+    <div class="mx-auto flex w-1/2 max-w-md flex-col space-y-2">
       <button
         class="rounded bg-green-200 p-2 text-left shadow hover:bg-green-400"
         on:click={() => {
@@ -41,7 +41,7 @@
       </button>
 
       <button
-        class="rounded bg-yellow-200 p-2 text-left shadow hover:bg-yellow-400"
+        class="rounded bg-yellow-200 p-2 text-left shadow hover:bg-yellow-300"
         on:click={() => {
           color = "yellow";
         }}
