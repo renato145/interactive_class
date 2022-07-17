@@ -56,6 +56,8 @@ pub enum CupColor {
 #[serde(tag = "kind", content = "payload")]
 #[ts(export, export_to = "frontend/bindings/")]
 pub enum ClientMessage {
+    /// General acknowledge
+    Ok,
     RoomInfo(RoomInfo),
     Error(String),
 }
@@ -77,6 +79,9 @@ impl From<WSError> for ClientMessage {
 pub struct RoomInfo {
     pub name: String,
     pub connections: usize,
+    pub green: usize,
+    pub yellow: usize,
+    pub red: usize,
 }
 
 impl From<RoomState> for RoomInfo {
@@ -84,6 +89,9 @@ impl From<RoomState> for RoomInfo {
         Self {
             name: state.name,
             connections: state.student_connections.len(),
+            green: state.green,
+            yellow: state.yellow,
+            red: state.red,
         }
     }
 }
