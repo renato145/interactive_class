@@ -61,7 +61,7 @@ async fn get_room_info_when_student_connects() {
     // Act
     // Create room
     app.create_cups_room(room_name).await;
-    // Client connects
+    // Student connects
     let mut connection = app.get_ws_connection().await;
     let msg = send_ws_msg(&mut connection, msg).await;
 
@@ -76,17 +76,20 @@ async fn get_room_info_when_student_connects() {
 }
 
 #[actix_rt::test]
-async fn fail_to_get_room_info_when_client_connects_to_unexisting_room() {
+async fn fail_to_get_room_info_when_student_connects_to_unexisting_room() {
     // Arrange
     let app = spawn_app().await;
     let room_name = "test_room";
     let msg = serde_json::json!({
         "task": "RoomConnect",
-        "payload": room_name
+        "payload": {
+            "room_name": room_name,
+            "connection_type": "Student"
+        }
     });
 
     // Act
-    // Client connects
+    // Student connects
     let mut connection = app.get_ws_connection().await;
     let msg = send_ws_msg(&mut connection, msg).await;
 
@@ -100,22 +103,25 @@ async fn fail_to_get_room_info_when_client_connects_to_unexisting_room() {
 }
 
 #[actix_rt::test]
-async fn get_room_info_when_second_client_connects() {
+async fn get_room_info_when_second_student_connects() {
     // Arrange
     let app = spawn_app().await;
     let room_name = "test_room";
     let msg = serde_json::json!({
         "task": "RoomConnect",
-        "payload": room_name
+        "payload": {
+            "room_name": room_name,
+            "connection_type": "Student"
+        }
     });
 
     // Act
     // Create room
     app.create_cups_room(room_name).await;
-    // First client connects
+    // First student connects
     let mut connection1 = app.get_ws_connection().await;
     send_ws_msg(&mut connection1, msg.clone()).await;
-    // Second client connects
+    // Second student connects
     let mut connection2 = app.get_ws_connection().await;
     let msg = send_ws_msg(&mut connection2, msg).await;
 
@@ -130,25 +136,28 @@ async fn get_room_info_when_second_client_connects() {
 }
 
 #[actix_rt::test]
-async fn get_room_info_refreshes_when_second_client_disconnects() {
+async fn get_room_info_refreshes_when_second_student_disconnects() {
     // Arrange
     let app = spawn_app().await;
     let room_name = "test_room";
     let msg = serde_json::json!({
         "task": "RoomConnect",
-        "payload": room_name
+        "payload": {
+            "room_name": room_name,
+            "connection_type": "Student"
+        }
     });
 
     // Act
     // Create room
     app.create_cups_room(room_name).await;
-    // First client connects
+    // First student connects
     let mut connection1 = app.get_ws_connection().await;
     send_ws_msg(&mut connection1, msg.clone()).await;
-    // Second client connects
+    // Second student connects
     let mut connection2 = app.get_ws_connection().await;
     send_ws_msg(&mut connection2, msg).await;
-    // Second client disconnects
+    // Second student disconnects
     connection2.close().await.unwrap();
     // Get room info message
     let msg = get_next_ws_msg(&mut connection1).await;
