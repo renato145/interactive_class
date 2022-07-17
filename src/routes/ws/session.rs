@@ -1,5 +1,5 @@
 use super::{
-    message::{ClientMessage, ConnectionType, RoomConnectInfo, WSMessage},
+    message::{ClientMessage, ConnectionType, CupColor, RoomConnectInfo, WSMessage},
     ws,
 };
 use crate::{configuration::WSSettings, state::AppState};
@@ -50,9 +50,8 @@ impl WSSession {
                 WSMessage::RoomConnect(room_info) => {
                     self.room_connect(room_info, addr);
                 }
-                WSMessage::ChooseCup(_color) => {
-                    // notify teacher
-                    todo!()
+                WSMessage::ChooseCup(color) => {
+                    self.choose_cup(color);
                 }
             },
             Err(e) => {
@@ -92,7 +91,7 @@ impl WSSession {
     #[tracing::instrument(skip(self))]
     fn broadcast_all(&self, msg: ClientMessage) {
         self.broadcast_message(msg.clone(), ConnectionType::Teacher);
-        self.broadcast_message(msg.clone(), ConnectionType::Student);
+        self.broadcast_message(msg, ConnectionType::Student);
     }
 
     fn get_room_info(&self) -> ClientMessage {
@@ -108,7 +107,8 @@ impl WSSession {
         }
     }
 
-    /// Connects to a room and returns room information to the client
+    /// Connects to a room, returns room information to the client and
+    /// broadcast information to teachers
     #[tracing::instrument(skip(self, addr))]
     fn room_connect(&mut self, room_info: RoomConnectInfo, addr: Addr<Self>) {
         let room_name = room_info.room_name;
@@ -143,9 +143,15 @@ impl WSSession {
                 }
             }
             Some(msg) => {
-                addr.do_send(msg.clone());
+                addr.do_send(msg);
             }
         }
+    }
+
+    /// Student chooses a cup color and broadcast information to teachers
+    #[tracing::instrument(skip(self))]
+    fn choose_cup(&mut self, color: CupColor) {
+        todo!()
     }
 }
 
