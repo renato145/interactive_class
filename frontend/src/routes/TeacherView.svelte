@@ -1,6 +1,7 @@
 <script lang="ts">
   import WsError from "../components/WSError.svelte";
   import WsStatus from "../components/WSStatus.svelte";
+  import CupBlock from "../components/CupBlock.svelte";
   import { getWSStore } from "../stores/ws";
   export let roomName;
 
@@ -10,6 +11,9 @@
     $wsStore.cups.green -
     $wsStore.cups.yellow -
     $wsStore.cups.red;
+  $: greenCups = $wsStore.cups.green / $wsStore.connections;
+  $: yellowCups = $wsStore.cups.yellow / $wsStore.connections;
+  $: redCups = $wsStore.cups.red / $wsStore.connections;
 </script>
 
 <div>
@@ -29,7 +33,14 @@
   <div class="mt-4">
     <WsError error_msg={$wsStore.error_msg} />
   </div>
-  <div class="mt-4">
+  <div class="ml-8 mt-4">
+    <div
+      class="bg-gray-300 w-[300px] h-[400px] rounded shadow ring ring-gray-500"
+    >
+      <CupBlock color="Red" cupPerc={redCups} />
+      <CupBlock color="Yellow" cupPerc={yellowCups} />
+      <CupBlock color="Green" cupPerc={greenCups} />
+    </div>
     <p>Green: {$wsStore.cups.green}</p>
     <p>Yellow: {$wsStore.cups.yellow}</p>
     <p>Red: {$wsStore.cups.red}</p>
