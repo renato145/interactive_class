@@ -15,6 +15,7 @@ use ts_rs::TS;
 #[ts(export, export_to = "frontend/bindings/")]
 pub enum WSMessage {
     RoomConnect(String),
+    ChooseCup(CupColor),
 }
 
 impl FromStr for WSMessage {
@@ -26,6 +27,14 @@ impl FromStr for WSMessage {
             .context("Failed to deserialize message")
             .map_err(WSError::ParseError)
     }
+}
+
+#[derive(Deserialize, TS)]
+#[ts(export, export_to = "frontend/bindings/")]
+pub enum CupColor {
+    Green,
+    Yellow,
+    Red,
 }
 
 /// Message to respond to client

@@ -52,6 +52,10 @@ impl WSSession {
                     addr.do_send(msg.clone());
                     self.broadcast_message(msg);
                 }
+                WSMessage::ChooseCup(color) => {
+                    // notify teacher
+                    todo!()
+                }
             },
             Err(e) => {
                 tracing::error!(error.cause_chain =? e, error.message = %e, "Failed to parse message.");
