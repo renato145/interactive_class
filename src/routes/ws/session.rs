@@ -80,12 +80,11 @@ impl WSSession {
                         })
                 }
                 None => {
-                    tracing::error!(error.message = %WSError::InvalidRoom(name.clone()));
+                    tracing::warn!(error.message = %WSError::InvalidRoom(name.clone()));
                 }
             },
             None => {
-                tracing::error!(error.message = %WSError::NoRoom);
-                tracing::info!("No connected to any room.");
+                tracing::warn!(error.message = %WSError::NoRoom);
             }
         }
     }
@@ -102,7 +101,7 @@ impl WSSession {
                 Some(room_state) => ClientMessage::RoomInfo(room_state.clone().into()),
                 None => {
                     let e = WSError::InvalidRoom(name.clone());
-                    tracing::error!(error.message = %e);
+                    tracing::warn!(error.message = %e);
                     e.into()
                 }
             },
@@ -177,15 +176,15 @@ impl Actor for WSSession {
             Some(name) => match self.state.rooms.lock().unwrap().get_mut(name) {
                 Some(room_state) => {
                     if room_state.student_connections.remove(&self.id).is_none() {
-                        tracing::warn!("Couldn't remove session.");
+                        tracing::warn!(error.message = %WSError::InvalidRoom(name.clone()), "Couldn't remove session.");
                     }
                 }
                 None => {
-                    tracing::error!("Invalid room on sessions: {name:?}");
+                    tracing::warn!(error.message = %WSError::InvalidRoom(name.clone()));
                 }
             },
             None => {
-                tracing::info!("No connected to any room.");
+                tracing::warn!(error.message = %WSError::NoRoom);
             }
         }
         let msg = self.get_room_info();
