@@ -4,6 +4,7 @@ import type { ClientMessage } from "bindings/ClientMessage";
 import type { ConnectionType } from "bindings/ConnectionType";
 import type { CupColor } from "bindings/CupColor";
 import type { Question } from "bindings/Question";
+import type { QuestionInfo } from "bindings/QuestionInfo";
 
 export interface WSData {
   room_name: string;
@@ -14,6 +15,7 @@ export interface WSData {
     yellow: number;
     red: number;
   };
+  questions: QuestionInfo;
   error_msg: string | null;
 }
 
@@ -76,6 +78,10 @@ export const getWSStore = (
           break;
 
         case "QuestionInfo":
+          wsStore.update((d) => ({
+            ...d,
+            questions: msg.payload,
+          }));
           break;
 
         case "QuestionPublication":
@@ -114,6 +120,7 @@ export const getWSStore = (
         yellow: 0,
         red: 0,
       },
+      questions: null,
       error_msg: null,
     },
     () => {

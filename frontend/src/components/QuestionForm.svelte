@@ -2,7 +2,7 @@
   import type { Question } from "bindings/Question";
 
   export let createQuestion: (question: Question) => void;
-  let creating = true,
+  let creating = false,
     title = "",
     options = ["", ""];
 
@@ -11,6 +11,7 @@
       title,
       options,
     });
+    creating = false;
   };
   const addOption = () => {
     options = [...options, `Answer ${options.length + 1}`];

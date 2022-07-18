@@ -3,6 +3,7 @@
   import WsStatus from "../components/WSStatus.svelte";
   import CupsSummary from "../components/CupsSummary.svelte";
   import QuestionForm from "../components/QuestionForm.svelte";
+  import QuestionViewAll from "../components/QuestionViewAll.svelte";
   import { getWSStore } from "../stores/ws";
   export let roomName;
 
@@ -41,4 +42,7 @@
 
   <!-- Questions -->
   <div class="mt-8"><QuestionForm {createQuestion} /></div>
+  <div class="mt-4">
+    <QuestionViewAll questions={$wsStore.questions} />
+  </div>
 </div>
