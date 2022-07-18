@@ -1,7 +1,7 @@
-use crate::helpers::{get_next_ws_msg, send_ws_msg, spawn_app};
+use crate::helpers::{get_next_ws_msg, select_cup_color, send_ws_msg, spawn_app};
 use futures::SinkExt;
 use interactive_class::routes::{
-    message::{ClientMessage, ConnectionType},
+    message::{ClientMessage, ConnectionType, CupColor},
     CupsInfo,
 };
 use std::collections::HashSet;
@@ -155,10 +155,6 @@ async fn teacher_gets_msg_when_student_chooses_a_cup() {
     // Arrange
     let app = spawn_app().await;
     let room_name = "test_room";
-    let student_cup_msg = serde_json::json!({
-        "task": "ChooseCup",
-        "payload": "Yellow"
-    });
 
     // Act
     // Create room
@@ -167,8 +163,7 @@ async fn teacher_gets_msg_when_student_chooses_a_cup() {
     let (mut teacher_connection, mut student_connection) =
         app.get_ws_teacher_student_connections(room_name).await;
     // Student chooses a cup
-    send_ws_msg(&mut student_connection, student_cup_msg).await;
-    // Get cup info message
+    select_cup_color(&mut student_connection, CupColor::Yellow).await;
     let msg = get_next_ws_msg(&mut teacher_connection).await;
 
     // Assert
@@ -186,10 +181,6 @@ async fn choosing_cup_fails_if_not_connected_to_room() {
     // Arrange
     let app = spawn_app().await;
     let room_name = "test_room";
-    let msg = serde_json::json!({
-        "task": "ChooseCup",
-        "payload": "Yellow"
-    });
 
     // Act
     // Create room
@@ -197,7 +188,7 @@ async fn choosing_cup_fails_if_not_connected_to_room() {
     // Start connections
     let mut connection = app.get_ws_connection().await;
     // Student chooses a cup
-    let msg = send_ws_msg(&mut connection, msg).await;
+    let msg = select_cup_color(&mut connection, CupColor::Yellow).await;
 
     // Assert
     match msg {
@@ -213,14 +204,6 @@ async fn changing_cup_color_works() {
     // Arrange
     let app = spawn_app().await;
     let room_name = "test_room";
-    let student_cup_msg1 = serde_json::json!({
-        "task": "ChooseCup",
-        "payload": "Yellow"
-    });
-    let student_cup_msg2 = serde_json::json!({
-        "task": "ChooseCup",
-        "payload": "Red"
-    });
 
     // Act
     // Create room
@@ -229,11 +212,10 @@ async fn changing_cup_color_works() {
     let (mut teacher_connection, mut student_connection) =
         app.get_ws_teacher_student_connections(room_name).await;
     // Student chooses a cup
-    send_ws_msg(&mut student_connection, student_cup_msg1).await;
+    select_cup_color(&mut student_connection, CupColor::Yellow).await;
     get_next_ws_msg(&mut teacher_connection).await;
     // Student choose a different cup
-    send_ws_msg(&mut student_connection, student_cup_msg2).await;
-    // Get cup info message
+    select_cup_color(&mut student_connection, CupColor::Red).await;
     let msg = get_next_ws_msg(&mut teacher_connection).await;
 
     // Assert

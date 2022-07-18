@@ -1,7 +1,7 @@
 use awc::ws::{self, Message};
 use awc::Client;
 use futures::{SinkExt, StreamExt};
-use interactive_class::routes::message::ConnectionType;
+use interactive_class::routes::message::{ConnectionType, CupColor};
 use interactive_class::{
     configuration::get_configuration,
     routes::{message::ClientMessage, CupsInfo},
@@ -76,14 +76,6 @@ impl TestApp {
             .0;
         get_next_ws_msg(&mut teacher_connection).await;
         (teacher_connection, student_connection)
-    }
-
-    /// Student selects a cup color
-    pub async fn select_cup_color(&self, room_name: &str, connection: &mut Connection) {
-        let msg = serde_json::json!({
-            "task": "ChooseCup",
-            "payload": "Yellow"
-        });
     }
 
     pub async fn get_route(&self, route: &str) -> reqwest::Response {
@@ -178,6 +170,15 @@ pub async fn send_ws_msg(connection: &mut Connection, msg: serde_json::Value) ->
             panic!("send_ws_msg: Timed out")
         }
     }
+}
+
+/// Student selects a cup color
+pub async fn select_cup_color(connection: &mut Connection, cup_color: CupColor) -> ClientMessage {
+    let msg = serde_json::json!({
+        "task": "ChooseCup",
+        "payload": format!("{cup_color:?}")
+    });
+    send_ws_msg(connection, msg).await
 }
 
 #[allow(unused)]
