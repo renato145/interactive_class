@@ -2,6 +2,7 @@
   import WsError from "../components/WSError.svelte";
   import WsStatus from "../components/WSStatus.svelte";
   import CupsSummary from "../components/CupsSummary.svelte";
+  import QuestionForm from "../components/QuestionForm.svelte";
   import { getWSStore } from "../stores/ws";
   export let roomName;
 
@@ -39,5 +40,5 @@
   {/if}
 
   <!-- Questions -->
-  <div class="mt-8">Questions</div>
+  <div class="mt-8"><QuestionForm {createQuestion} /></div>
 </div>
