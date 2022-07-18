@@ -2,6 +2,7 @@ use awc::ws::{self, Message};
 use awc::Client;
 use futures::{SinkExt, StreamExt};
 use interactive_class::routes::message::{ConnectionType, CupColor};
+use interactive_class::state::QuestionState;
 use interactive_class::{
     configuration::get_configuration,
     routes::{message::ClientMessage, CupsInfo},
@@ -11,6 +12,7 @@ use interactive_class::{
 use once_cell::sync::Lazy;
 use reqwest::Response;
 use std::time::Duration;
+use uuid::Uuid;
 
 // Ensure that 'tracing' stack is only initialized once using `once_cell`
 static TRACING: Lazy<()> = Lazy::new(|| {
@@ -177,6 +179,35 @@ pub async fn select_cup_color(connection: &mut Connection, cup_color: CupColor) 
     let msg = serde_json::json!({
         "task": "ChooseCup",
         "payload": format!("{cup_color:?}")
+    });
+    send_ws_msg(connection, msg).await
+}
+
+/// Student selects a cup color
+pub async fn create_question(
+    connection: &mut Connection,
+    title: &str,
+    options: &[&str],
+) -> (Uuid, QuestionState) {
+    let msg = serde_json::json!({
+        "task": "CreateQuestion",
+        "payload": {
+            "title": title,
+            "options": options
+        }
+    });
+    match send_ws_msg(connection, msg).await {
+        ClientMessage::QuestionInfo(d) => d.0.into_iter().last().unwrap(),
+        msg => {
+            panic!("Invalid msg: {msg:?}");
+        }
+    }
+}
+
+pub async fn publish_question(connection: &mut Connection, id: Uuid) -> ClientMessage {
+    let msg = serde_json::json!({
+        "task": "PublishQuestion",
+        "payload": id
     });
     send_ws_msg(connection, msg).await
 }

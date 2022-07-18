@@ -1,4 +1,5 @@
 use crate::{error_chain_fmt, state::StateError};
+use uuid::Uuid;
 
 #[derive(thiserror::Error)]
 pub enum WSError {
@@ -12,6 +13,8 @@ pub enum WSError {
     ParseError(#[source] anyhow::Error),
     #[error("{0}")]
     InvalidClientId(#[source] StateError),
+    #[error("Invalid question id: {0:?}.")]
+    InvalidQuestionId(Uuid),
 }
 
 impl std::fmt::Debug for WSError {

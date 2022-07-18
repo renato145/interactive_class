@@ -18,6 +18,7 @@ pub enum WSMessage {
     RoomConnect(RoomConnectInfo),
     ChooseCup(CupColor),
     CreateQuestion(Question),
+    PublishQuestion(QuestionId),
 }
 
 impl FromStr for WSMessage {
@@ -69,6 +70,7 @@ pub enum ClientMessage {
     Ok,
     RoomInfo(RoomInfo),
     QuestionInfo(QuestionInfo),
+    QuestionPublication(QuestionPublication),
     Error(String),
 }
 
@@ -130,3 +132,14 @@ impl From<RoomState> for RoomInfo {
 pub struct QuestionInfo(
     #[ts(type = "Record<string, QuestionState>")] pub HashMap<Uuid, QuestionState>,
 );
+
+#[derive(Clone, Debug, Deserialize, Serialize, TS)]
+#[ts(export, export_to = "frontend/bindings/")]
+pub struct QuestionPublication {
+    pub title: String,
+    pub options: Vec<String>,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize, TS)]
+#[ts(export, export_to = "frontend/bindings/")]
+pub struct QuestionId(#[ts(type = "string")] pub Uuid);

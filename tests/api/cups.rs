@@ -1,4 +1,4 @@
-use crate::helpers::{get_next_ws_msg, select_cup_color, send_ws_msg, spawn_app};
+use crate::helpers::{get_next_ws_msg, select_cup_color, spawn_app};
 use futures::SinkExt;
 use interactive_class::routes::{
     message::{ClientMessage, ConnectionType, CupColor},
