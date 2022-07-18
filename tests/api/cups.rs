@@ -177,20 +177,6 @@ async fn teacher_gets_msg_when_student_chooses_a_cup() {
     // Arrange
     let app = spawn_app().await;
     let room_name = "test_room";
-    let teacher_connect_msg = serde_json::json!({
-        "task": "RoomConnect",
-        "payload": {
-            "room_name": room_name,
-            "connection_type": "Teacher"
-        }
-    });
-    let student_connect_msg = serde_json::json!({
-        "task": "RoomConnect",
-        "payload": {
-            "room_name": room_name,
-            "connection_type": "Student"
-        }
-    });
     let student_cup_msg = serde_json::json!({
         "task": "ChooseCup",
         "payload": "Yellow"
@@ -200,11 +186,8 @@ async fn teacher_gets_msg_when_student_chooses_a_cup() {
     // Create room
     app.create_cups_room(room_name).await;
     // Start connections
-    let mut teacher_connection = app.get_ws_connection().await;
-    send_ws_msg(&mut teacher_connection, teacher_connect_msg).await;
-    let mut student_connection = app.get_ws_connection().await;
-    send_ws_msg(&mut student_connection, student_connect_msg).await;
-    get_next_ws_msg(&mut teacher_connection).await;
+    let (mut teacher_connection, mut student_connection) =
+        app.get_ws_teacher_student_connections(room_name).await;
     // Student chooses a cup
     send_ws_msg(&mut student_connection, student_cup_msg).await;
     // Get cup info message
@@ -252,20 +235,6 @@ async fn changing_cup_color_works() {
     // Arrange
     let app = spawn_app().await;
     let room_name = "test_room";
-    let teacher_connect_msg = serde_json::json!({
-        "task": "RoomConnect",
-        "payload": {
-            "room_name": room_name,
-            "connection_type": "Teacher"
-        }
-    });
-    let student_connect_msg = serde_json::json!({
-        "task": "RoomConnect",
-        "payload": {
-            "room_name": room_name,
-            "connection_type": "Student"
-        }
-    });
     let student_cup_msg1 = serde_json::json!({
         "task": "ChooseCup",
         "payload": "Yellow"
@@ -279,11 +248,8 @@ async fn changing_cup_color_works() {
     // Create room
     app.create_cups_room(room_name).await;
     // Start connections
-    let mut teacher_connection = app.get_ws_connection().await;
-    send_ws_msg(&mut teacher_connection, teacher_connect_msg).await;
-    let mut student_connection = app.get_ws_connection().await;
-    send_ws_msg(&mut student_connection, student_connect_msg).await;
-    get_next_ws_msg(&mut teacher_connection).await;
+    let (mut teacher_connection, mut student_connection) =
+        app.get_ws_teacher_student_connections(room_name).await;
     // Student chooses a cup
     send_ws_msg(&mut student_connection, student_cup_msg1).await;
     get_next_ws_msg(&mut teacher_connection).await;

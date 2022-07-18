@@ -40,6 +40,36 @@ impl TestApp {
         connection
     }
 
+    /// Returns teacher and student connections
+    pub async fn get_ws_teacher_student_connections(
+        &self,
+        room_name: &str,
+    ) -> (
+        actix_codec::Framed<awc::BoxedSocket, awc::ws::Codec>,
+        actix_codec::Framed<awc::BoxedSocket, awc::ws::Codec>,
+    ) {
+        let teacher_connect_msg = serde_json::json!({
+            "task": "RoomConnect",
+            "payload": {
+                "room_name": room_name,
+                "connection_type": "Teacher"
+            }
+        });
+        let student_connect_msg = serde_json::json!({
+            "task": "RoomConnect",
+            "payload": {
+                "room_name": room_name,
+                "connection_type": "Student"
+            }
+        });
+        let mut teacher_connection = self.get_ws_connection().await;
+        send_ws_msg(&mut teacher_connection, teacher_connect_msg).await;
+        let mut student_connection = self.get_ws_connection().await;
+        send_ws_msg(&mut student_connection, student_connect_msg).await;
+        get_next_ws_msg(&mut teacher_connection).await;
+        (teacher_connection, student_connection)
+    }
+
     pub async fn get_route(&self, route: &str) -> reqwest::Response {
         self.api_client
             .get(format!("{}/{}", &self.address, route))
