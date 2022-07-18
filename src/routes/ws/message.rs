@@ -132,9 +132,17 @@ impl From<RoomState> for RoomInfo {
 
 #[derive(Clone, Debug, Deserialize, Serialize, TS)]
 #[ts(export, export_to = "frontend/bindings/")]
-pub struct QuestionInfo(
-    #[ts(type = "Record<string, QuestionState>")] pub HashMap<Uuid, QuestionState>,
-);
+pub struct QuestionInfo(pub HashMap<String, QuestionState>);
+
+impl From<HashMap<Uuid, QuestionState>> for QuestionInfo {
+    fn from(data: HashMap<Uuid, QuestionState>) -> Self {
+        Self(
+            data.into_iter()
+                .map(|(id, state)| (id.to_string(), state))
+                .collect(),
+        )
+    }
+}
 
 #[derive(Clone, Debug, Deserialize, Serialize, TS)]
 #[ts(export, export_to = "frontend/bindings/")]

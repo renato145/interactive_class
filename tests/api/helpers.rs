@@ -11,6 +11,7 @@ use interactive_class::{
 };
 use once_cell::sync::Lazy;
 use reqwest::Response;
+use std::str::FromStr;
 use std::time::Duration;
 use uuid::Uuid;
 
@@ -197,7 +198,10 @@ pub async fn create_question(
         }
     });
     match send_ws_msg(connection, msg).await {
-        ClientMessage::QuestionInfo(d) => d.0.into_iter().last().unwrap(),
+        ClientMessage::QuestionInfo(d) => {
+            let (id, state) = d.0.into_iter().last().unwrap();
+            (Uuid::from_str(&id).unwrap(), state)
+        }
         msg => {
             panic!("Invalid msg: {msg:?}");
         }

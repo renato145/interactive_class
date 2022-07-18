@@ -2,7 +2,7 @@ use super::{
     error::WSError,
     message::{
         ClientMessage, ConnectionType, CupColor, Question, QuestionAnswer, QuestionId,
-        QuestionInfo, QuestionModification, QuestionPublication, RoomConnectInfo, WSMessage,
+        QuestionModification, QuestionPublication, RoomConnectInfo, WSMessage,
     },
     ws,
 };
@@ -198,7 +198,7 @@ impl WSSession {
             Some(room) => match self.state.rooms.lock().unwrap().get_mut(room) {
                 Some(room_state) => {
                     room_state.add_question(question);
-                    ClientMessage::QuestionInfo(QuestionInfo(room_state.questions.clone()))
+                    ClientMessage::QuestionInfo(room_state.questions.clone().into())
                 }
                 None => WSError::InvalidRoom(room.clone()).into(),
             },
@@ -232,9 +232,7 @@ impl WSSession {
         let msg = match &self.room {
             Some(room) => match self.state.rooms.lock().unwrap().get_mut(room) {
                 Some(room_state) => match room_state.questions.remove(&question_id.0) {
-                    Some(_) => {
-                        ClientMessage::QuestionInfo(QuestionInfo(room_state.questions.clone()))
-                    }
+                    Some(_) => ClientMessage::QuestionInfo(room_state.questions.clone().into()),
                     None => WSError::InvalidQuestionId(question_id.0).into(),
                 },
                 None => WSError::InvalidRoom(room.clone()).into(),
@@ -252,7 +250,7 @@ impl WSSession {
                 Some(room_state) => match room_state.questions.get_mut(&question_modification.id) {
                     Some(question) => {
                         question.modify(question_modification.title, question_modification.options);
-                        ClientMessage::QuestionInfo(QuestionInfo(room_state.questions.clone()))
+                        ClientMessage::QuestionInfo(room_state.questions.clone().into())
                     }
                     None => WSError::InvalidQuestionId(question_modification.id).into(),
                 },
@@ -270,9 +268,7 @@ impl WSSession {
             Some(room) => match self.state.rooms.lock().unwrap().get_mut(room) {
                 Some(room_state) => match room_state.questions.get_mut(&answer.id) {
                     Some(question) => match question.answer(answer.answer) {
-                        Ok(_) => {
-                            ClientMessage::QuestionInfo(QuestionInfo(room_state.questions.clone()))
-                        }
+                        Ok(_) => ClientMessage::QuestionInfo(room_state.questions.clone().into()),
                         Err(e) => WSError::from(e).into(),
                     },
                     None => WSError::InvalidQuestionId(answer.id).into(),
