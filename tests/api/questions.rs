@@ -34,8 +34,10 @@ async fn create_question_works() {
 
     // Assert
     match msg {
-        ClientMessage::Ok => {
-            // Valid message
+        ClientMessage::QuestionInfo(info) => {
+          let question_state = info.0.values().collect::<Vec<_>>()[0];
+          assert_eq!(question_state.title, title);
+          assert_eq!(question_state.options, options);
         }
         msg => panic!("Invalid msg: {msg:?}"),
     }
