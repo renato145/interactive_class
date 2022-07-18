@@ -1,7 +1,9 @@
 use crate::routes::message::{ClientMessage, Question};
 use crate::{error_chain_fmt, routes::message::CupColor};
 use actix::Recipient;
+use serde::{Deserialize, Serialize};
 use std::{collections::HashMap, sync::Mutex};
+use ts_rs::TS;
 use uuid::Uuid;
 
 #[derive(thiserror::Error)]
@@ -69,7 +71,8 @@ impl StudentInfo {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Deserialize, Serialize, TS)]
+#[ts(export, export_to = "frontend/bindings/")]
 pub struct QuestionState {
     pub title: String,
     pub options: Vec<String>,

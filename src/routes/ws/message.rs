@@ -1,12 +1,13 @@
 //! Web socket messages
 
 use super::error::WSError;
-use crate::state::RoomState;
+use crate::state::{QuestionState, RoomState};
 use actix::Message;
 use anyhow::Context;
 use serde::{Deserialize, Serialize};
-use std::str::FromStr;
+use std::{collections::HashMap, str::FromStr};
 use ts_rs::TS;
+use uuid::Uuid;
 
 /// Message from client
 #[derive(Deserialize, Message, TS)]
@@ -67,6 +68,7 @@ pub enum ClientMessage {
     /// General acknowledge
     Ok,
     RoomInfo(RoomInfo),
+    QuestionInfo(QuestionInfo),
     Error(String),
 }
 
@@ -122,3 +124,9 @@ impl From<RoomState> for RoomInfo {
         }
     }
 }
+
+#[derive(Clone, Debug, Deserialize, Serialize, TS)]
+#[ts(export, export_to = "frontend/bindings/")]
+pub struct QuestionInfo(
+    #[ts(type = "Record<string, QuestionState>")] pub HashMap<Uuid, QuestionState>,
+);

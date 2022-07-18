@@ -1,6 +1,8 @@
 use super::{
     error::WSError,
-    message::{ClientMessage, ConnectionType, CupColor, Question, RoomConnectInfo, WSMessage},
+    message::{
+        ClientMessage, ConnectionType, CupColor, Question, QuestionInfo, RoomConnectInfo, WSMessage,
+    },
     ws,
 };
 use crate::{
@@ -183,13 +185,14 @@ impl WSSession {
             Some(room) => match self.state.rooms.lock().unwrap().get_mut(room) {
                 Some(room_state) => {
                     room_state.add_question(question);
-                    ClientMessage::Ok
+                    ClientMessage::QuestionInfo(QuestionInfo(room_state.questions.clone()))
                 }
                 None => WSError::InvalidRoom(room.clone()).into(),
             },
             None => WSError::NoRoom.into(),
         };
-        addr.do_send(msg);
+        addr.do_send(msg.clone());
+        self.broadcast_message(msg, ConnectionType::Teacher);
     }
 }
 
