@@ -49,7 +49,7 @@ async fn get_cups_info_after_rooms_are_created() {
 }
 
 #[actix_rt::test]
-async fn get_room_info_when_student_connects() {
+async fn get_info_when_student_connects() {
     // Arrange
     let app = spawn_app().await;
     let room_name = "test_room";
@@ -58,39 +58,47 @@ async fn get_room_info_when_student_connects() {
     // Create room
     app.create_cups_room(room_name).await;
     // Student connects
-    let (_, msg) = app
+    let (_, room_info, questions_info) = app
         .get_ws_room_connection(room_name, ConnectionType::Student)
         .await;
 
     // Assert
-    match msg {
+    match room_info {
         ClientMessage::RoomInfo(msg) => {
             assert_eq!(&msg.name, room_name);
             assert_eq!(msg.connections, 1);
         }
         msg => panic!("Invalid msg: {msg:?}"),
     }
+
+    match questions_info {
+        Some(ClientMessage::QuestionInfo(msg)) => {
+            assert_eq!(msg.0.len(), 0);
+        }
+        msg => panic!("Invalid msg: {msg:?}"),
+    }
 }
 
 #[actix_rt::test]
-async fn fail_to_get_room_info_when_student_connects_to_unexisting_room() {
+async fn fail_to_get_info_when_student_connects_to_unexisting_room() {
     // Arrange
     let app = spawn_app().await;
     let room_name = "test_room";
 
     // Act
     // Student connects
-    let (_, msg) = app
+    let (_, room_info, questions_info) = app
         .get_ws_room_connection(room_name, ConnectionType::Student)
         .await;
 
     // Assert
-    match msg {
+    match room_info {
         ClientMessage::Error(msg) => {
             assert_eq!(&msg, "Invalid room: \"test_room\".");
         }
         msg => panic!("Invalid msg: {msg:?}"),
     }
+    assert!(questions_info.is_none());
 }
 
 #[actix_rt::test]
@@ -105,7 +113,7 @@ async fn get_room_info_when_second_student_connects() {
     // Start connections
     let (mut connection, _conn1) = app.get_ws_teacher_student_connections(room_name).await;
     // Second student connects
-    let (_conn2, _) = app
+    let (_conn2, _, _) = app
         .get_ws_room_connection(room_name, ConnectionType::Student)
         .await;
     let msg = get_next_ws_msg(&mut connection).await;
@@ -132,7 +140,7 @@ async fn get_room_info_refreshes_when_second_student_disconnects() {
     // Start connections
     let (mut connection, _conn1) = app.get_ws_teacher_student_connections(room_name).await;
     // Second student connects
-    let (mut conn2, _) = app
+    let (mut conn2, _, _) = app
         .get_ws_room_connection(room_name, ConnectionType::Student)
         .await;
     get_next_ws_msg(&mut connection).await;

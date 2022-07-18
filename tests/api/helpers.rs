@@ -46,12 +46,12 @@ impl TestApp {
         connection
     }
 
-    /// Gets ws connection and message from connection
+    /// Gets ws connection, room info and question info
     pub async fn get_ws_room_connection(
         &self,
         room_name: &str,
         connection_type: ConnectionType,
-    ) -> (Connection, ClientMessage) {
+    ) -> (Connection, ClientMessage, Option<ClientMessage>) {
         let msg = serde_json::json!({
             "task": "RoomConnect",
             "payload": {
@@ -60,8 +60,13 @@ impl TestApp {
             }
         });
         let mut connection = self.get_ws_connection().await;
-        let msg = send_ws_msg(&mut connection, msg).await;
-        (connection, msg)
+        let room_info = send_ws_msg(&mut connection, msg).await;
+        let questions_info = if matches!(room_info, ClientMessage::RoomInfo(_)) {
+            Some(get_next_ws_msg(&mut connection).await)
+        } else {
+            None
+        };
+        (connection, room_info, questions_info)
     }
 
     /// Returns teacher and student connections

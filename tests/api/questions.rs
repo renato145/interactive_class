@@ -16,7 +16,7 @@ async fn create_question_works() {
     // Create room
     app.create_cups_room(room_name).await;
     // Start connections
-    let (mut connection, _) = app
+    let (mut connection, _, _) = app
         .get_ws_room_connection(room_name, ConnectionType::Teacher)
         .await;
     // Create question
@@ -70,7 +70,7 @@ async fn delete_questions_works() {
     // Create room
     app.create_cups_room(room_name).await;
     // Start connections
-    let (mut connection, _) = app
+    let (mut connection, _, _) = app
         .get_ws_room_connection(room_name, ConnectionType::Teacher)
         .await;
     // Create question
@@ -108,7 +108,7 @@ async fn modify_questions_works() {
     // Create room
     app.create_cups_room(room_name).await;
     // Start connections
-    let (mut connection, _) = app
+    let (mut connection, _, _) = app
         .get_ws_room_connection(room_name, ConnectionType::Teacher)
         .await;
     // Create question

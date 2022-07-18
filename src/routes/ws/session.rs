@@ -2,7 +2,7 @@ use super::{
     error::WSError,
     message::{
         ClientMessage, ConnectionType, CupColor, Question, QuestionAnswer, QuestionId,
-        QuestionInfo, QuestionModification, QuestionPublication, RoomConnectInfo, WSMessage,
+        QuestionModification, QuestionPublication, RoomConnectInfo, WSMessage,
     },
     ws,
 };
