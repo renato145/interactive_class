@@ -175,7 +175,7 @@ async fn modify_questions_keep_answer_information() {
         (
             None,
             Some(vec!["option1", "option2"]),
-            Some(0),
+            None,
             "modify when no answers",
         ),
         (
@@ -183,6 +183,18 @@ async fn modify_questions_keep_answer_information() {
             Some(vec!["option1", "option2"]),
             Some(0),
             "modify unanswered",
+        ),
+        (
+            Some(1),
+            Some(vec!["option1", "new option2"]),
+            None,
+            "modify answered",
+        ),
+        (
+            Some(2),
+            Some(vec!["option1", "option2"]),
+            None,
+            "remove answered",
         ),
     ];
 
