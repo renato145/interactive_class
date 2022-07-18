@@ -102,18 +102,16 @@ async fn get_room_info_when_second_student_connects() {
     // Act
     // Create room
     app.create_cups_room(room_name).await;
-    // First student connects
-    let (mut connection, _) = app
+    // Start connections
+    let (mut connection, _conn1) = app.get_ws_teacher_student_connections(room_name).await;
+    // Second student connects
+    let (_conn2, _) = app
         .get_ws_room_connection(room_name, ConnectionType::Student)
         .await;
-    // Second student connects
-    app.get_ws_room_connection(room_name, ConnectionType::Student)
-        .await;
-    // Get message from student 1
     let msg = get_next_ws_msg(&mut connection).await;
 
     // Assert
-    match msg {
+    match dbg!(msg) {
         ClientMessage::RoomInfo(msg) => {
             assert_eq!(&msg.name, room_name);
             assert_eq!(msg.connections, 2);
@@ -131,21 +129,19 @@ async fn get_room_info_refreshes_when_second_student_disconnects() {
     // Act
     // Create room
     app.create_cups_room(room_name).await;
-    // First student connects
-    let (mut connection1, _) = app
-        .get_ws_room_connection(room_name, ConnectionType::Student)
-        .await;
+    // Start connections
+    let (mut connection, _conn1) = app.get_ws_teacher_student_connections(room_name).await;
     // Second student connects
-    let (mut connection2, _) = app
+    let (mut conn2, _) = app
         .get_ws_room_connection(room_name, ConnectionType::Student)
         .await;
+    get_next_ws_msg(&mut connection).await;
     // Second student disconnects
-    connection2.close().await.unwrap();
-    // Get room info message
-    let msg = get_next_ws_msg(&mut connection1).await;
+    conn2.close().await.unwrap();
+    let msg = get_next_ws_msg(&mut connection).await;
 
     // Assert
-    match msg {
+    match dbg!(msg) {
         ClientMessage::RoomInfo(msg) => {
             assert_eq!(&msg.name, room_name);
             assert_eq!(msg.connections, 1);

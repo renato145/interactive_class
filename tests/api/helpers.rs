@@ -25,6 +25,8 @@ static TRACING: Lazy<()> = Lazy::new(|| {
     }
 });
 
+type Connection = actix_codec::Framed<awc::BoxedSocket, awc::ws::Codec>;
+
 pub struct TestApp {
     pub address: String,
     pub port: u16,
@@ -32,7 +34,7 @@ pub struct TestApp {
 }
 
 impl TestApp {
-    pub async fn get_ws_connection(&self) -> actix_codec::Framed<awc::BoxedSocket, awc::ws::Codec> {
+    pub async fn get_ws_connection(&self) -> Connection {
         let (_response, connection) = Client::new()
             .ws(format!("{}/ws", self.address))
             .connect()
@@ -46,10 +48,7 @@ impl TestApp {
         &self,
         room_name: &str,
         connection_type: ConnectionType,
-    ) -> (
-        actix_codec::Framed<awc::BoxedSocket, awc::ws::Codec>,
-        ClientMessage,
-    ) {
+    ) -> (Connection, ClientMessage) {
         let msg = serde_json::json!({
             "task": "RoomConnect",
             "payload": {
@@ -66,10 +65,7 @@ impl TestApp {
     pub async fn get_ws_teacher_student_connections(
         &self,
         room_name: &str,
-    ) -> (
-        actix_codec::Framed<awc::BoxedSocket, awc::ws::Codec>,
-        actix_codec::Framed<awc::BoxedSocket, awc::ws::Codec>,
-    ) {
+    ) -> (Connection, Connection) {
         let mut teacher_connection = self
             .get_ws_room_connection(room_name, ConnectionType::Teacher)
             .await
@@ -80,6 +76,14 @@ impl TestApp {
             .0;
         get_next_ws_msg(&mut teacher_connection).await;
         (teacher_connection, student_connection)
+    }
+
+    /// Student selects a cup color
+    pub async fn select_cup_color(&self, room_name: &str, connection: &mut Connection) {
+        let msg = serde_json::json!({
+            "task": "ChooseCup",
+            "payload": "Yellow"
+        });
     }
 
     pub async fn get_route(&self, route: &str) -> reqwest::Response {
@@ -148,9 +152,7 @@ pub async fn spawn_app() -> TestApp {
     spawn_app_with_timeout(2000).await
 }
 
-pub async fn get_next_ws_msg(
-    connection: &mut actix_codec::Framed<awc::BoxedSocket, awc::ws::Codec>,
-) -> ClientMessage {
+pub async fn get_next_ws_msg(connection: &mut Connection) -> ClientMessage {
     loop {
         match connection.next().await {
             Some(Ok(ws::Frame::Text(msg))) => {
@@ -162,10 +164,7 @@ pub async fn get_next_ws_msg(
     }
 }
 
-pub async fn send_ws_msg(
-    connection: &mut actix_codec::Framed<awc::BoxedSocket, awc::ws::Codec>,
-    msg: serde_json::Value,
-) -> ClientMessage {
+pub async fn send_ws_msg(connection: &mut Connection, msg: serde_json::Value) -> ClientMessage {
     connection
         .send(Message::Text(msg.to_string().into()))
         .await
