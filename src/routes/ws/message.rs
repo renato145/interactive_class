@@ -19,6 +19,7 @@ pub enum WSMessage {
     ChooseCup(CupColor),
     CreateQuestion(Question),
     PublishQuestion(QuestionId),
+    DeleteQuestion(QuestionId),
 }
 
 impl FromStr for WSMessage {
