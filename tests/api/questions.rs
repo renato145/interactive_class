@@ -35,10 +35,25 @@ async fn create_question_works() {
     // Assert
     match msg {
         ClientMessage::QuestionInfo(info) => {
-          let question_state = info.0.values().collect::<Vec<_>>()[0];
-          assert_eq!(question_state.title, title);
-          assert_eq!(question_state.options, options);
+            let question_state = info.0.values().collect::<Vec<_>>()[0];
+            assert_eq!(question_state.title, title);
+            assert_eq!(question_state.options, options);
         }
         msg => panic!("Invalid msg: {msg:?}"),
     }
+}
+
+#[actix_rt::test]
+async fn students_see_questions_on_publish() {
+    todo!();
+}
+
+#[actix_rt::test]
+async fn delete_questions_works() {
+    todo!();
+}
+
+#[actix_rt::test]
+async fn modify_questions_works() {
+    todo!();
 }
