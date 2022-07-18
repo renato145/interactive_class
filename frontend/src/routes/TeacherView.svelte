@@ -5,7 +5,7 @@
   import { getWSStore } from "../stores/ws";
   export let roomName;
 
-  let { wsStore } = getWSStore(roomName, "Teacher");
+  let { wsStore, createQuestion } = getWSStore(roomName, "Teacher");
   $: unanswered =
     $wsStore.connections -
     $wsStore.cups.green -

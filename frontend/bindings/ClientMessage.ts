@@ -3,4 +3,9 @@ import type { QuestionInfo } from "./QuestionInfo";
 import type { QuestionPublication } from "./QuestionPublication";
 import type { RoomInfo } from "./RoomInfo";
 
-export type ClientMessage = { kind: "Ok" } | { kind: "RoomInfo", payload: RoomInfo } | { kind: "QuestionInfo", payload: QuestionInfo } | { kind: "QuestionPublication", payload: QuestionPublication } | { kind: "Error", payload: string };
+export type ClientMessage =
+  | { kind: "Ok" }
+  | { kind: "RoomInfo"; payload: RoomInfo }
+  | { kind: "QuestionInfo"; payload: QuestionInfo }
+  | { kind: "QuestionPublication"; payload: QuestionPublication }
+  | { kind: "Error"; payload: string };

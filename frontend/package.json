@@ -8,7 +8,8 @@
     "build": "vite build",
     "preview": "vite preview",
     "check": "svelte-check --tsconfig ./tsconfig.json",
-    "format": "prettier --write --plugin-search-dir=. src/"
+    "format": "prettier --write --plugin-search-dir=. src/",
+    "format-bindings": "prettier --write --plugin-search-dir=. bindings/"
   },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^1.0.0-next.30",

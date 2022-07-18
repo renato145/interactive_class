@@ -3,6 +3,7 @@ import type { WSMessage } from "bindings/WSMessage";
 import type { ClientMessage } from "bindings/ClientMessage";
 import type { ConnectionType } from "bindings/ConnectionType";
 import type { CupColor } from "bindings/CupColor";
+import type { Question } from "bindings/Question";
 
 export interface WSData {
   room_name: string;
@@ -37,6 +38,13 @@ export const getWSStore = (
     });
   };
 
+  const createQuestion = (question: Question) => {
+    sendWSMessage({
+      task: "CreateQuestion",
+      payload: question,
+    });
+  };
+
   const initWS = () => {
     const ws = new WebSocket("ws://localhost:8000/ws");
     ws.onopen = () => {
@@ -65,6 +73,12 @@ export const getWSStore = (
               red: msg.payload.red,
             },
           }));
+          break;
+
+        case "QuestionInfo":
+          break;
+
+        case "QuestionPublication":
           break;
 
         case "Error":
@@ -114,5 +128,5 @@ export const getWSStore = (
     }
   );
 
-  return { wsStore, chooseCup };
+  return { wsStore, chooseCup, createQuestion };
 };

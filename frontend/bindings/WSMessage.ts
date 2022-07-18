@@ -6,4 +6,11 @@ import type { QuestionId } from "./QuestionId";
 import type { QuestionModification } from "./QuestionModification";
 import type { RoomConnectInfo } from "./RoomConnectInfo";
 
-export type WSMessage = { task: "RoomConnect", payload: RoomConnectInfo } | { task: "ChooseCup", payload: CupColor } | { task: "CreateQuestion", payload: Question } | { task: "PublishQuestion", payload: QuestionId } | { task: "DeleteQuestion", payload: QuestionId } | { task: "ModifyQuestion", payload: QuestionModification } | { task: "AnswerQuestion", payload: QuestionAnswer };
+export type WSMessage =
+  | { task: "RoomConnect"; payload: RoomConnectInfo }
+  | { task: "ChooseCup"; payload: CupColor }
+  | { task: "CreateQuestion"; payload: Question }
+  | { task: "PublishQuestion"; payload: QuestionId }
+  | { task: "DeleteQuestion"; payload: QuestionId }
+  | { task: "ModifyQuestion"; payload: QuestionModification }
+  | { task: "AnswerQuestion"; payload: QuestionAnswer };

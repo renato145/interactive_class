@@ -10,6 +10,7 @@ watch_dev:
 refresh_bindings:
   rm frontend/bindings/*
   cargo test --lib
+  cd frontend && pnpm run format-bindings
 
 checks:
   #!/usr/bin/env bash
