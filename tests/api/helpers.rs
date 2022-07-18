@@ -212,6 +212,14 @@ pub async fn publish_question(connection: &mut Connection, id: Uuid) -> ClientMe
     send_ws_msg(connection, msg).await
 }
 
+pub async fn delete_question(connection: &mut Connection, id: Uuid) -> ClientMessage {
+    let msg = serde_json::json!({
+        "task": "DeleteQuestion",
+        "payload": id
+    });
+    send_ws_msg(connection, msg).await
+}
+
 #[allow(unused)]
 pub fn assert_is_redirect_to(response: &Response, location: &str) {
     assert_eq!(response.status().as_u16(), 303);

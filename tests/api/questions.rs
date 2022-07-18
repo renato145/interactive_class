@@ -1,4 +1,6 @@
-use crate::helpers::{create_question, get_next_ws_msg, publish_question, spawn_app};
+use crate::helpers::{
+    create_question, delete_question, get_next_ws_msg, publish_question, spawn_app,
+};
 use interactive_class::routes::message::{ClientMessage, ConnectionType};
 
 #[actix_rt::test]
@@ -57,7 +59,31 @@ async fn students_see_questions_on_publish() {
 
 #[actix_rt::test]
 async fn delete_questions_works() {
-    todo!();
+    // Arrange
+    let app = spawn_app().await;
+    let room_name = "test_room";
+    let title = "test question";
+    let options = vec!["option1", "option2", "option3"];
+
+    // Act
+    // Create room
+    app.create_cups_room(room_name).await;
+    // Start connections
+    let (mut connection, _) = app
+        .get_ws_room_connection(room_name, ConnectionType::Teacher)
+        .await;
+    // Create question
+    let (id, _) = create_question(&mut connection, title, &options).await;
+    // Delete question
+    let msg = delete_question(&mut connection, id).await;
+
+    // Assert
+    match msg {
+        ClientMessage::QuestionInfo(info) => {
+            assert_eq!(info.0.len(), 0);
+        }
+        msg => panic!("Invalid msg: {msg:?}"),
+    }
 }
 
 #[actix_rt::test]
