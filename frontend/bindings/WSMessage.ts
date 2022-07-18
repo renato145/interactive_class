@@ -4,4 +4,4 @@ import type { Question } from "./Question";
 import type { QuestionId } from "./QuestionId";
 import type { RoomConnectInfo } from "./RoomConnectInfo";
 
-export type WSMessage = { task: "RoomConnect", payload: RoomConnectInfo } | { task: "ChooseCup", payload: CupColor } | { task: "CreateQuestion", payload: Question } | { task: "PublishQuestion", payload: QuestionId };
+export type WSMessage = { task: "RoomConnect", payload: RoomConnectInfo } | { task: "ChooseCup", payload: CupColor } | { task: "CreateQuestion", payload: Question } | { task: "PublishQuestion", payload: QuestionId } | { task: "DeleteQuestion", payload: QuestionId };
