@@ -1,8 +1,8 @@
 use super::{
     error::WSError,
     message::{
-        ClientMessage, ConnectionType, CupColor, Question, QuestionId, QuestionInfo,
-        QuestionModification, QuestionPublication, RoomConnectInfo, WSMessage,
+        ClientMessage, ConnectionType, CupColor, Question, QuestionAnswer, QuestionId,
+        QuestionInfo, QuestionModification, QuestionPublication, RoomConnectInfo, WSMessage,
     },
     ws,
 };
@@ -71,6 +71,9 @@ impl WSSession {
                 }
                 WSMessage::ModifyQuestion(question_modification) => {
                     self.modify_question(question_modification, addr);
+                }
+                WSMessage::AnswerQuestion(answer) => {
+                    self.answer_question(answer, addr);
                 }
             },
             Err(e) => {
@@ -264,6 +267,27 @@ impl WSSession {
         };
         addr.do_send(msg.clone());
         self.broadcast_all(msg);
+    }
+
+    #[tracing::instrument(skip(self, addr))]
+    fn answer_question(&mut self, answer: QuestionAnswer, addr: Addr<Self>) {
+        let msg = match &self.room {
+            Some(room) => match self.state.rooms.lock().unwrap().get_mut(room) {
+                Some(room_state) => match room_state.questions.get_mut(&answer.id) {
+                    Some(question) => match question.answer(answer.answer) {
+                        Ok(_) => {
+                            ClientMessage::QuestionInfo(QuestionInfo(room_state.questions.clone()))
+                        }
+                        Err(e) => WSError::from(e).into(),
+                    },
+                    None => WSError::InvalidQuestionId(answer.id).into(),
+                },
+                None => WSError::InvalidRoom(room.clone()).into(),
+            },
+            None => WSError::NoRoom.into(),
+        };
+        addr.do_send(ClientMessage::Ok);
+        self.broadcast_message(msg, ConnectionType::Teacher);
     }
 }
 

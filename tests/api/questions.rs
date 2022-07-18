@@ -139,6 +139,7 @@ async fn student_can_answer_questions() {
     let room_name = "test_room";
     let title = "test question";
     let options = vec!["option1", "option2", "option3"];
+    let answer = 1;
 
     // Act
     // Create room
@@ -149,12 +150,14 @@ async fn student_can_answer_questions() {
     // Create question
     let (id, _) = create_question(&mut teacher_connection, title, &options).await;
     // Answer questions
-    let msg = answer_question(&mut student_connection, id, 1).await;
+    answer_question(&mut student_connection, id, answer).await;
+    let msg = get_next_ws_msg(&mut teacher_connection).await;
 
     // Assert
     match msg {
         ClientMessage::QuestionInfo(info) => {
             let question = info.0.values().last().unwrap();
+            assert_eq!(question.answer.unwrap(), answer)
         }
         msg => panic!("Invalid msg: {msg:?}"),
     }

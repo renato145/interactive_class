@@ -15,6 +15,8 @@ pub enum WSError {
     InvalidClientId(#[source] StateError),
     #[error("Invalid question id: {0:?}.")]
     InvalidQuestionId(Uuid),
+    #[error("{0}")]
+    InvalidAnswer(#[source] StateError),
 }
 
 impl std::fmt::Debug for WSError {
@@ -27,6 +29,7 @@ impl From<StateError> for WSError {
     fn from(e: StateError) -> Self {
         match e {
             StateError::InvalidId => Self::InvalidClientId(e),
+            StateError::InvalidAnswer(_) => Self::InvalidAnswer(e),
         }
     }
 }

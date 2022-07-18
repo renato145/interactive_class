@@ -10,6 +10,8 @@ use uuid::Uuid;
 pub enum StateError {
     #[error("Invalid client id.")]
     InvalidId,
+    #[error("Invalid answer: {0}.")]
+    InvalidAnswer(usize),
 }
 
 impl std::fmt::Debug for StateError {
@@ -76,16 +78,24 @@ impl StudentInfo {
 pub struct QuestionState {
     pub title: String,
     pub options: Vec<String>,
-    pub answers: Vec<usize>,
+    pub answer: Option<usize>,
 }
 
 impl QuestionState {
     pub fn new(title: String, options: Vec<String>) -> Self {
-        let answers = vec![0; options.len()];
         Self {
             title,
             options,
-            answers,
+            answer: None,
+        }
+    }
+
+    pub fn answer(&mut self, answer: usize) -> Result<(), StateError> {
+        if answer > self.options.len() {
+            Err(StateError::InvalidAnswer(answer))
+        } else {
+            self.answer = Some(answer);
+            Ok(())
         }
     }
 }
