@@ -1,6 +1,7 @@
 use awc::ws::{self, Message};
 use awc::Client;
 use futures::{SinkExt, StreamExt};
+use interactive_class::routes::message::ConnectionType;
 use interactive_class::{
     configuration::get_configuration,
     routes::{message::ClientMessage, CupsInfo},
@@ -40,6 +41,27 @@ impl TestApp {
         connection
     }
 
+    /// Gets ws connection and message from connection
+    pub async fn get_ws_room_connection(
+        &self,
+        room_name: &str,
+        connection_type: ConnectionType,
+    ) -> (
+        actix_codec::Framed<awc::BoxedSocket, awc::ws::Codec>,
+        ClientMessage,
+    ) {
+        let msg = serde_json::json!({
+            "task": "RoomConnect",
+            "payload": {
+                "room_name": room_name,
+                "connection_type": format!("{connection_type:?}")
+            }
+        });
+        let mut connection = self.get_ws_connection().await;
+        let msg = send_ws_msg(&mut connection, msg).await;
+        (connection, msg)
+    }
+
     /// Returns teacher and student connections
     pub async fn get_ws_teacher_student_connections(
         &self,
@@ -48,24 +70,14 @@ impl TestApp {
         actix_codec::Framed<awc::BoxedSocket, awc::ws::Codec>,
         actix_codec::Framed<awc::BoxedSocket, awc::ws::Codec>,
     ) {
-        let teacher_connect_msg = serde_json::json!({
-            "task": "RoomConnect",
-            "payload": {
-                "room_name": room_name,
-                "connection_type": "Teacher"
-            }
-        });
-        let student_connect_msg = serde_json::json!({
-            "task": "RoomConnect",
-            "payload": {
-                "room_name": room_name,
-                "connection_type": "Student"
-            }
-        });
-        let mut teacher_connection = self.get_ws_connection().await;
-        send_ws_msg(&mut teacher_connection, teacher_connect_msg).await;
-        let mut student_connection = self.get_ws_connection().await;
-        send_ws_msg(&mut student_connection, student_connect_msg).await;
+        let mut teacher_connection = self
+            .get_ws_room_connection(room_name, ConnectionType::Teacher)
+            .await
+            .0;
+        let student_connection = self
+            .get_ws_room_connection(room_name, ConnectionType::Student)
+            .await
+            .0;
         get_next_ws_msg(&mut teacher_connection).await;
         (teacher_connection, student_connection)
     }
