@@ -1,6 +1,6 @@
 use super::{
     error::WSError,
-    message::{ClientMessage, ConnectionType, CupColor, RoomConnectInfo, WSMessage},
+    message::{ClientMessage, ConnectionType, CupColor, Question, RoomConnectInfo, WSMessage},
     ws,
 };
 use crate::{
@@ -56,6 +56,9 @@ impl WSSession {
                 }
                 WSMessage::ChooseCup(color) => {
                     self.choose_cup(color, addr);
+                }
+                WSMessage::CreateQuestion(question) => {
+                    self.create_question(question, addr);
                 }
             },
             Err(e) => {
@@ -171,6 +174,22 @@ impl WSSession {
         };
         addr.do_send(msg);
         self.broadcast_message(self.get_room_info(), ConnectionType::Teacher);
+    }
+
+    /// Create a new question for the room
+    #[tracing::instrument(skip(self, addr))]
+    fn create_question(&mut self, question: Question, addr: Addr<Self>) {
+        let msg = match &self.room {
+            Some(room) => match self.state.rooms.lock().unwrap().get_mut(room) {
+                Some(room_state) => {
+                    room_state.add_question(question);
+                    ClientMessage::Ok
+                }
+                None => WSError::InvalidRoom(room.clone()).into(),
+            },
+            None => WSError::NoRoom.into(),
+        };
+        addr.do_send(msg);
     }
 }
 

@@ -16,6 +16,7 @@ use ts_rs::TS;
 pub enum WSMessage {
     RoomConnect(RoomConnectInfo),
     ChooseCup(CupColor),
+    CreateQuestion(Question),
 }
 
 impl FromStr for WSMessage {
@@ -48,6 +49,13 @@ pub enum CupColor {
     Green,
     Yellow,
     Red,
+}
+
+#[derive(Debug, Deserialize, TS)]
+#[ts(export, export_to = "frontend/bindings/")]
+pub struct Question {
+    pub title: String,
+    pub options: Vec<String>,
 }
 
 /// Message to respond to client

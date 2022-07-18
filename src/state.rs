@@ -1,4 +1,4 @@
-use crate::routes::message::ClientMessage;
+use crate::routes::message::{ClientMessage, Question};
 use crate::{error_chain_fmt, routes::message::CupColor};
 use actix::Recipient;
 use std::{collections::HashMap, sync::Mutex};
@@ -26,6 +26,7 @@ pub struct RoomState {
     pub name: String,
     pub student_connections: HashMap<Uuid, StudentInfo>,
     pub teacher_connections: HashMap<Uuid, Recipient<ClientMessage>>,
+    pub questions: HashMap<Uuid, QuestionState>,
 }
 
 impl RoomState {
@@ -34,6 +35,7 @@ impl RoomState {
             name,
             student_connections: HashMap::new(),
             teacher_connections: HashMap::new(),
+            questions: HashMap::new(),
         }
     }
 
@@ -45,6 +47,10 @@ impl RoomState {
             }
             None => Err(StateError::InvalidId),
         }
+    }
+
+    pub fn add_question(&mut self, question: Question) {
+        self.questions.insert(Uuid::new_v4(), question.into());
     }
 }
 
@@ -60,5 +66,29 @@ impl StudentInfo {
             connection,
             cup_selection: None,
         }
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct QuestionState {
+    pub title: String,
+    pub options: Vec<String>,
+    pub answers: Vec<usize>,
+}
+
+impl QuestionState {
+    pub fn new(title: String, options: Vec<String>) -> Self {
+        let answers = vec![0; options.len()];
+        Self {
+            title,
+            options,
+            answers,
+        }
+    }
+}
+
+impl From<Question> for QuestionState {
+    fn from(question: Question) -> Self {
+        Self::new(question.title, question.options)
     }
 }
