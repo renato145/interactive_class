@@ -223,5 +223,13 @@ async fn modify_questions_keep_answer_information() {
             }
             msg => panic!("Invalid msg: {msg:?}"),
         }
+        // Clean up: reset question
+        modify_question(
+            &mut teacher_connection,
+            id,
+            Some(title),
+            Some(options.clone()),
+        )
+        .await;
     }
 }

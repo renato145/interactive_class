@@ -251,12 +251,7 @@ impl WSSession {
             Some(room) => match self.state.rooms.lock().unwrap().get_mut(room) {
                 Some(room_state) => match room_state.questions.get_mut(&question_modification.id) {
                     Some(question) => {
-                        if let Some(title) = question_modification.title {
-                            question.title = title;
-                        }
-                        if let Some(options) = question_modification.options {
-                            question.options = options;
-                        }
+                        question.modify(question_modification.title, question_modification.options);
                         ClientMessage::QuestionInfo(QuestionInfo(room_state.questions.clone()))
                     }
                     None => WSError::InvalidQuestionId(question_modification.id).into(),

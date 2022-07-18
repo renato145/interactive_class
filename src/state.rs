@@ -98,6 +98,27 @@ impl QuestionState {
             Ok(())
         }
     }
+
+    pub fn modify(&mut self, title: Option<String>, options: Option<Vec<String>>) {
+        if let Some(title) = title {
+            self.title = title;
+        }
+        if let Some(options) = options {
+            // Check if current answer should stay
+            if let Some(answer) = self.answer {
+                match options.iter().position(|o| o == &self.options[answer]) {
+                    Some(idx) => {
+                        self.answer = Some(idx);
+                    }
+                    None => {
+                        self.answer = None;
+                    }
+                }
+            }
+
+            self.options = options;
+        }
+    }
 }
 
 impl From<Question> for QuestionState {
