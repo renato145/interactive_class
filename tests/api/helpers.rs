@@ -237,6 +237,21 @@ pub async fn modify_question(
     send_ws_msg(connection, msg).await
 }
 
+pub async fn answer_question(
+    connection: &mut Connection,
+    id: Uuid,
+    answer: usize,
+) -> ClientMessage {
+    let msg = serde_json::json!({
+        "task": "AnswerQuestion",
+        "payload": {
+            "id": id,
+            "answer": answer,
+        }
+    });
+    send_ws_msg(connection, msg).await
+}
+
 #[allow(unused)]
 pub fn assert_is_redirect_to(response: &Response, location: &str) {
     assert_eq!(response.status().as_u16(), 303);
