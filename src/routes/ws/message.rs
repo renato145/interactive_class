@@ -20,6 +20,7 @@ pub enum WSMessage {
     CreateQuestion(Question),
     PublishQuestion(QuestionId),
     DeleteQuestion(QuestionId),
+    ModifyQuestion(QuestionModification),
 }
 
 impl FromStr for WSMessage {
@@ -144,3 +145,12 @@ pub struct QuestionPublication {
 #[derive(Clone, Debug, Deserialize, Serialize, TS)]
 #[ts(export, export_to = "frontend/bindings/")]
 pub struct QuestionId(#[ts(type = "string")] pub Uuid);
+
+#[derive(Clone, Debug, Deserialize, Serialize, TS)]
+#[ts(export, export_to = "frontend/bindings/")]
+pub struct QuestionModification {
+    #[ts(type = "string")]
+    pub id: Uuid,
+    pub title: Option<String>,
+    pub options: Option<Vec<String>>,
+}

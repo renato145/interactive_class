@@ -2,7 +2,7 @@ use super::{
     error::WSError,
     message::{
         ClientMessage, ConnectionType, CupColor, Question, QuestionId, QuestionInfo,
-        QuestionPublication, RoomConnectInfo, WSMessage,
+        QuestionModification, QuestionPublication, RoomConnectInfo, WSMessage,
     },
     ws,
 };
@@ -68,6 +68,9 @@ impl WSSession {
                 }
                 WSMessage::DeleteQuestion(question_id) => {
                     self.delete_question(question_id, addr);
+                }
+                WSMessage::ModifyQuestion(question_modification) => {
+                    self.modify_question(question_modification, addr);
                 }
             },
             Err(e) => {
@@ -230,6 +233,30 @@ impl WSSession {
                         ClientMessage::QuestionInfo(QuestionInfo(room_state.questions.clone()))
                     }
                     None => WSError::InvalidQuestionId(question_id.0).into(),
+                },
+                None => WSError::InvalidRoom(room.clone()).into(),
+            },
+            None => WSError::NoRoom.into(),
+        };
+        addr.do_send(msg.clone());
+        self.broadcast_all(msg);
+    }
+
+    #[tracing::instrument(skip(self, addr))]
+    fn modify_question(&mut self, question_modification: QuestionModification, addr: Addr<Self>) {
+        let msg = match &self.room {
+            Some(room) => match self.state.rooms.lock().unwrap().get_mut(room) {
+                Some(room_state) => match room_state.questions.get_mut(&question_modification.id) {
+                    Some(question) => {
+                        if let Some(title) = question_modification.title {
+                            question.title = title;
+                        }
+                        if let Some(options) = question_modification.options {
+                            question.options = options;
+                        }
+                        ClientMessage::QuestionInfo(QuestionInfo(room_state.questions.clone()))
+                    }
+                    None => WSError::InvalidQuestionId(question_modification.id).into(),
                 },
                 None => WSError::InvalidRoom(room.clone()).into(),
             },
