@@ -1,19 +1,11 @@
 <script lang="ts">
   import WsError from "../components/WSError.svelte";
   import WsStatus from "../components/WSStatus.svelte";
-  import CupBlock from "../components/CupBlock.svelte";
+  import CupsSummary from "../components/CupsSummary.svelte";
   import { getWSStore } from "../stores/ws";
   export let roomName;
 
   let { wsStore, createQuestion } = getWSStore(roomName, "Teacher");
-  $: unanswered =
-    $wsStore.connections -
-    $wsStore.cups.green -
-    $wsStore.cups.yellow -
-    $wsStore.cups.red;
-  $: greenCups = $wsStore.cups.green / $wsStore.connections;
-  $: yellowCups = $wsStore.cups.yellow / $wsStore.connections;
-  $: redCups = $wsStore.cups.red / $wsStore.connections;
 </script>
 
 <div>
@@ -33,16 +25,19 @@
   <div class="mt-4">
     <WsError error_msg={$wsStore.error_msg} />
   </div>
-  <div class="ml-8 mt-8">
-    <div class="w-[300px] h-[400px] rounded shadow ring ring-gray-500">
-      <CupBlock color="Red" cupPerc={redCups} cups={$wsStore.cups.red} />
-      <CupBlock
-        color="Yellow"
-        cupPerc={yellowCups}
-        cups={$wsStore.cups.yellow}
+
+  <!-- Cups visualization -->
+  {#if $wsStore.connections > 0}
+    <div class="ml-8 mt-8">
+      <CupsSummary
+        greenCups={$wsStore.cups.green}
+        yellowCups={$wsStore.cups.yellow}
+        redCups={$wsStore.cups.red}
+        total={$wsStore.connections}
       />
-      <CupBlock color="Green" cupPerc={greenCups} cups={$wsStore.cups.green} />
-      <CupBlock cupPerc={unanswered / $wsStore.connections} cups={unanswered} />
     </div>
-  </div>
+  {/if}
+
+  <!-- Questions -->
+  <div class="mt-8">Questions</div>
 </div>
