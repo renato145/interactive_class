@@ -1,5 +1,5 @@
 use crate::helpers::{
-    create_question, delete_question, get_next_ws_msg, publish_question, spawn_app,
+    create_question, delete_question, get_next_ws_msg, modify_question, publish_question, spawn_app,
 };
 use interactive_class::routes::message::{ClientMessage, ConnectionType};
 
@@ -88,5 +88,45 @@ async fn delete_questions_works() {
 
 #[actix_rt::test]
 async fn modify_questions_works() {
-    todo!();
+    // Arrange
+    let app = spawn_app().await;
+    let room_name = "test_room";
+    let title = "test question";
+    let options = vec!["option1", "option2", "option3"];
+    let test_cases = vec![
+        (Some("new title"), None, "new title"),
+        (None, Some(vec!["an option"]), "new options"),
+        (
+            Some("new title"),
+            Some(vec!["an option"]),
+            "new title and options",
+        ),
+    ];
+
+    // Act
+    // Create room
+    app.create_cups_room(room_name).await;
+    // Start connections
+    let (mut connection, _) = app
+        .get_ws_room_connection(room_name, ConnectionType::Teacher)
+        .await;
+    // Create question
+    let (id, _) = create_question(&mut connection, title, &options).await;
+    // Modify questions
+    for (new_title, new_options, description) in test_cases {
+        let msg = modify_question(&mut connection, id, new_title, new_options.clone()).await;
+        // Assert
+        match msg {
+            ClientMessage::QuestionInfo(info) => {
+                let question = info.0.values().last().unwrap();
+                if let Some(new_title) = new_title {
+                    assert_eq!(question.title, new_title, "{description}");
+                }
+                if let Some(new_options) = new_options {
+                    assert_eq!(question.options, new_options, "{description}");
+                }
+            }
+            msg => panic!("Invalid msg: {msg:?}"),
+        }
+    }
 }
