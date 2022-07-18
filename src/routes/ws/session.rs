@@ -2,7 +2,7 @@ use super::{
     error::WSError,
     message::{
         ClientMessage, ConnectionType, CupColor, Question, QuestionAnswer, QuestionId,
-        QuestionModification, QuestionPublication, RoomConnectInfo, WSMessage,
+        QuestionInfo, QuestionModification, QuestionPublication, RoomConnectInfo, WSMessage,
     },
     ws,
 };
@@ -153,7 +153,9 @@ impl WSSession {
                         .is_none(),
                 };
                 if added {
-                    Ok(())
+                    Ok(ClientMessage::QuestionInfo(
+                        room_state.questions.clone().into(),
+                    ))
                 } else {
                     Err(WSError::AlreadyConnected)
                 }
@@ -161,9 +163,13 @@ impl WSSession {
             None => Err(WSError::InvalidRoom(room_name)),
         };
         match msg {
-            Ok(_) => {
+            Ok(question_info) => {
+                // Send room info
                 let msg = self.get_room_info();
                 addr.do_send(msg.clone());
+                // Send available questions
+                addr.do_send(question_info);
+                // Broadcast room info about new connection
                 if let ConnectionType::Student = room_info.connection_type {
                     self.broadcast_message(msg, ConnectionType::Teacher);
                 }
