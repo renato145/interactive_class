@@ -20,11 +20,11 @@ async fn create_question_works() {
         .get_ws_room_connection(room_name, ConnectionType::Teacher)
         .await;
     // Create question
-    let (_, question_state) = create_question(&mut connection, title, &options).await;
+    let question_info = create_question(&mut connection, title, &options).await;
 
     // Assert
-    assert_eq!(question_state.title, title);
-    assert_eq!(question_state.options, options);
+    assert_eq!(question_info.title, title);
+    assert_eq!(question_info.options, options);
 }
 
 #[actix_rt::test]
@@ -42,10 +42,9 @@ async fn students_see_questions_on_publish() {
     let (mut teacher_connection, mut student_connection) =
         app.get_ws_teacher_student_connections(room_name).await;
     // Create question
-    let (question_id, _question_state) =
-        create_question(&mut teacher_connection, title, &options).await;
+    let question_info = create_question(&mut teacher_connection, title, &options).await;
     // Publish question
-    publish_question(&mut teacher_connection, question_id).await;
+    publish_question(&mut teacher_connection, question_info.id.0).await;
     let msg = get_next_ws_msg(&mut student_connection).await;
 
     // Assert
@@ -74,14 +73,14 @@ async fn delete_questions_works() {
         .get_ws_room_connection(room_name, ConnectionType::Teacher)
         .await;
     // Create question
-    let (id, _) = create_question(&mut connection, title, &options).await;
+    let question_info = create_question(&mut connection, title, &options).await;
     // Delete question
-    let msg = delete_question(&mut connection, id).await;
+    let msg = delete_question(&mut connection, question_info.id.0).await;
 
     // Assert
     match msg {
-        ClientMessage::QuestionInfo(info) => {
-            assert_eq!(info.0.len(), 0);
+        ClientMessage::QuestionsInfo(info) => {
+            assert_eq!(info.len(), 0);
         }
         msg => panic!("Invalid msg: {msg:?}"),
     }
@@ -112,20 +111,26 @@ async fn modify_questions_works() {
         .get_ws_room_connection(room_name, ConnectionType::Teacher)
         .await;
     // Create question
-    let (id, _) = create_question(&mut connection, title, &options).await;
+    let question_info = create_question(&mut connection, title, &options).await;
 
     for (new_title, new_options, description) in test_cases {
         // Modify question
-        let msg = modify_question(&mut connection, id, new_title, new_options.clone()).await;
+        let msg = modify_question(
+            &mut connection,
+            question_info.id.0,
+            new_title,
+            new_options.clone(),
+        )
+        .await;
         // Assert
         match msg {
-            ClientMessage::QuestionInfo(info) => {
-                let question = info.0.values().last().unwrap();
+            ClientMessage::QuestionsInfo(info) => {
+                let question_info = info.iter().last().unwrap();
                 if let Some(new_title) = new_title {
-                    assert_eq!(question.title, new_title, "{description}");
+                    assert_eq!(question_info.title, new_title, "{description}");
                 }
                 if let Some(new_options) = new_options {
-                    assert_eq!(question.options, new_options, "{description}");
+                    assert_eq!(question_info.options, new_options, "{description}");
                 }
             }
             msg => panic!("Invalid msg: {msg:?}"),
@@ -149,16 +154,16 @@ async fn student_can_answer_questions() {
     let (mut teacher_connection, mut student_connection) =
         app.get_ws_teacher_student_connections(room_name).await;
     // Create question
-    let (id, _) = create_question(&mut teacher_connection, title, &options).await;
+    let question_info = create_question(&mut teacher_connection, title, &options).await;
     // Answer questions
-    answer_question(&mut student_connection, id, answer).await;
+    answer_question(&mut student_connection, question_info.id.0, answer).await;
     let msg = get_next_ws_msg(&mut teacher_connection).await;
 
     // Assert
     match msg {
-        ClientMessage::QuestionInfo(info) => {
-            let question = info.0.values().last().unwrap();
-            assert_eq!(question.answer.unwrap(), answer)
+        ClientMessage::QuestionsInfo(info) => {
+            let question = info.iter().last().unwrap();
+            assert_eq!(question.answers[answer], 1)
         }
         msg => panic!("Invalid msg: {msg:?}"),
     }
@@ -181,13 +186,13 @@ async fn modify_questions_keep_answer_information() {
         (
             Some(0),
             Some(vec!["option1", "option2"]),
-            Some(0),
+            Some(1),
             "modify unanswered",
         ),
         (
             Some(1),
             Some(vec!["option1", "new option2"]),
-            None,
+            Some(0),
             "modify answered",
         ),
         (
@@ -205,7 +210,8 @@ async fn modify_questions_keep_answer_information() {
     let (mut teacher_connection, mut student_connection) =
         app.get_ws_teacher_student_connections(room_name).await;
     // Create question
-    let (id, _) = create_question(&mut teacher_connection, title, &options).await;
+    let question_info = create_question(&mut teacher_connection, title, &options).await;
+    let id = question_info.id.0;
 
     for (answer, new_options, expected, description) in test_cases {
         // Answer question
@@ -217,9 +223,15 @@ async fn modify_questions_keep_answer_information() {
         let msg = modify_question(&mut teacher_connection, id, None, new_options).await;
         // Assert
         match msg {
-            ClientMessage::QuestionInfo(info) => {
-                let question = info.0.values().last().unwrap();
-                assert_eq!(question.answer, expected, "{description}");
+            ClientMessage::QuestionsInfo(info) => {
+                let question = info.iter().last().unwrap();
+                if let Some(answer) = answer {
+                    assert_eq!(
+                        question.answers.get(answer).cloned(),
+                        expected,
+                        "{description}"
+                    );
+                }
             }
             msg => panic!("Invalid msg: {msg:?}"),
         }

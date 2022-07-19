@@ -72,7 +72,7 @@ pub enum ClientMessage {
     /// General acknowledge
     Ok,
     RoomInfo(RoomInfo),
-    QuestionInfo(QuestionInfo),
+    QuestionsInfo(Vec<QuestionInfo>),
     QuestionPublication(QuestionPublication),
     Error(String),
 }
@@ -80,6 +80,22 @@ pub enum ClientMessage {
 impl ClientMessage {
     pub fn internal_error() -> Self {
         Self::Error("Internal server error".to_string())
+    }
+
+    pub fn from_questions_map(questions: HashMap<Uuid, QuestionState>) -> Self {
+        let all_info = questions
+            .into_iter()
+            .map(|(id, question_state)| {
+                let answers = question_state.summary();
+                QuestionInfo {
+                    id: QuestionId(id),
+                    title: question_state.title,
+                    options: question_state.options,
+                    answers,
+                }
+            })
+            .collect();
+        Self::QuestionsInfo(all_info)
     }
 }
 
@@ -132,16 +148,11 @@ impl From<RoomState> for RoomInfo {
 
 #[derive(Clone, Debug, Deserialize, Serialize, TS)]
 #[ts(export, export_to = "frontend/bindings/")]
-pub struct QuestionInfo(pub HashMap<String, QuestionState>);
-
-impl From<HashMap<Uuid, QuestionState>> for QuestionInfo {
-    fn from(data: HashMap<Uuid, QuestionState>) -> Self {
-        Self(
-            data.into_iter()
-                .map(|(id, state)| (id.to_string(), state))
-                .collect(),
-        )
-    }
+pub struct QuestionInfo {
+    pub id: QuestionId,
+    pub title: String,
+    pub options: Vec<String>,
+    pub answers: Vec<usize>,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize, TS)]

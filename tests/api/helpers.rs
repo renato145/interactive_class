@@ -1,8 +1,7 @@
 use awc::ws::{self, Message};
 use awc::Client;
 use futures::{SinkExt, StreamExt};
-use interactive_class::routes::message::{ConnectionType, CupColor};
-use interactive_class::state::QuestionState;
+use interactive_class::routes::message::{ConnectionType, CupColor, QuestionInfo};
 use interactive_class::{
     configuration::get_configuration,
     routes::{message::ClientMessage, CupsInfo},
@@ -11,7 +10,6 @@ use interactive_class::{
 };
 use once_cell::sync::Lazy;
 use reqwest::Response;
-use std::str::FromStr;
 use std::time::Duration;
 use uuid::Uuid;
 
@@ -194,7 +192,7 @@ pub async fn create_question(
     connection: &mut Connection,
     title: &str,
     options: &[&str],
-) -> (Uuid, QuestionState) {
+) -> QuestionInfo {
     let msg = serde_json::json!({
         "task": "CreateQuestion",
         "payload": {
@@ -203,10 +201,7 @@ pub async fn create_question(
         }
     });
     match send_ws_msg(connection, msg).await {
-        ClientMessage::QuestionInfo(d) => {
-            let (id, state) = d.0.into_iter().last().unwrap();
-            (Uuid::from_str(&id).unwrap(), state)
-        }
+        ClientMessage::QuestionsInfo(d) => d.into_iter().last().unwrap(),
         msg => {
             panic!("Invalid msg: {msg:?}");
         }

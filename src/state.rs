@@ -1,9 +1,10 @@
 use crate::routes::message::{ClientMessage, Question};
 use crate::{error_chain_fmt, routes::message::CupColor};
 use actix::Recipient;
+use itertools::Itertools;
 use serde::{Deserialize, Serialize};
+use std::collections::HashSet;
 use std::{collections::HashMap, sync::Mutex};
-use ts_rs::TS;
 use uuid::Uuid;
 
 #[derive(thiserror::Error)]
@@ -30,6 +31,7 @@ pub struct RoomState {
     pub name: String,
     pub student_connections: HashMap<Uuid, StudentInfo>,
     pub teacher_connections: HashMap<Uuid, Recipient<ClientMessage>>,
+    /// QuestionId -> QuestionState
     pub questions: HashMap<Uuid, QuestionState>,
 }
 
@@ -73,12 +75,12 @@ impl StudentInfo {
     }
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize, TS)]
-#[ts(export, export_to = "frontend/bindings/")]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct QuestionState {
     pub title: String,
     pub options: Vec<String>,
-    pub answer: Option<usize>,
+    /// StudentId -> answer idx
+    pub answers: HashMap<Uuid, usize>,
 }
 
 impl QuestionState {
@@ -86,15 +88,15 @@ impl QuestionState {
         Self {
             title,
             options,
-            answer: None,
+            answers: HashMap::new(),
         }
     }
 
-    pub fn answer(&mut self, answer: usize) -> Result<(), StateError> {
+    pub fn answer(&mut self, student_id: Uuid, answer: usize) -> Result<(), StateError> {
         if answer > self.options.len() {
             Err(StateError::InvalidAnswer(answer))
         } else {
-            self.answer = Some(answer);
+            self.answers.insert(student_id, answer);
             Ok(())
         }
     }
@@ -104,20 +106,38 @@ impl QuestionState {
             self.title = title;
         }
         if let Some(options) = options {
-            // Check if current answer should stay
-            if let Some(answer) = self.answer {
-                match options.iter().position(|o| o == &self.options[answer]) {
-                    Some(idx) => {
-                        self.answer = Some(idx);
-                    }
-                    None => {
-                        self.answer = None;
-                    }
-                }
-            }
-
+            // Check which answers to keep
+            let prev2new = self
+                .answers
+                .values()
+                .collect::<HashSet<_>>()
+                .into_iter()
+                .filter_map(|&previous_idx| {
+                    let current_answer = &self.options[previous_idx];
+                    options
+                        .iter()
+                        .position(|o| o == current_answer)
+                        .map(|new_idx| (previous_idx, new_idx))
+                })
+                .collect::<HashMap<_, _>>();
+            // Modify current answers
+            self.answers = self
+                .answers
+                .iter()
+                .filter_map(|(&id, &answer)| prev2new.get(&answer).map(|&new_idx| (id, new_idx)))
+                .collect();
+            // Set new options
             self.options = options;
         }
+    }
+
+    /// Get #answers for each option
+    pub fn summary(&self) -> Vec<usize> {
+        let counts = self.answers.values().into_iter().counts();
+        (0..self.options.len())
+            .into_iter()
+            .map(|i| counts.get(&i).cloned().unwrap_or(0))
+            .collect()
     }
 }
 

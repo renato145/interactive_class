@@ -6,6 +6,6 @@ import type { RoomInfo } from "./RoomInfo";
 export type ClientMessage =
   | { kind: "Ok" }
   | { kind: "RoomInfo"; payload: RoomInfo }
-  | { kind: "QuestionInfo"; payload: QuestionInfo }
+  | { kind: "QuestionsInfo"; payload: Array<QuestionInfo> }
   | { kind: "QuestionPublication"; payload: QuestionPublication }
   | { kind: "Error"; payload: string };

@@ -72,8 +72,8 @@ async fn get_info_when_student_connects() {
     }
 
     match questions_info {
-        Some(ClientMessage::QuestionInfo(msg)) => {
-            assert_eq!(msg.0.len(), 0);
+        Some(ClientMessage::QuestionsInfo(msg)) => {
+            assert_eq!(msg.len(), 0);
         }
         msg => panic!("Invalid msg: {msg:?}"),
     }
