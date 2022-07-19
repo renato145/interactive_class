@@ -5,4 +5,5 @@ export interface QuestionPublication {
   id: QuestionId;
   title: string;
   options: Array<string>;
+  students: number;
 }
