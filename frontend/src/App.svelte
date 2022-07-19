@@ -6,7 +6,7 @@
 </script>
 
 <Router primary={false}>
-  <div class="container mx-auto mt-4 rounded bg-slate-50 p-4">
+  <div class="container mx-auto my-4 rounded bg-slate-50 p-4">
     <nav>
       <Link to="/">Home</Link>
     </nav>

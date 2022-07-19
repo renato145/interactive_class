@@ -15,10 +15,22 @@
     chooseCup_(cupColor);
   };
 
-  let questions: QuestionPublication[] = [];
+  let questions: (QuestionPublication & { timeoutID: number })[] = [];
   let unsubscribe = questionsStore.subscribe((question) => {
     if (question !== null) {
-      questions = [...questions, question];
+      questions
+        .filter((d) => d.id === question.id)
+        .forEach((d) => {
+          clearTimeout(d.timeoutID);
+        });
+
+      const timeoutID = setTimeout(() => {
+        questions = questions.filter((q) => q.id !== question.id);
+      }, 5000);
+      questions = [
+        ...questions.filter((d) => d.id !== question.id),
+        { ...question, timeoutID },
+      ];
     }
   });
 
