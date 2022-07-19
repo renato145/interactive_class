@@ -15,7 +15,7 @@ export interface WSData {
     yellow: number;
     red: number;
   };
-  questions: QuestionInfo;
+  questions: QuestionInfo[];
   error_msg: string | null;
 }
 
@@ -77,7 +77,7 @@ export const getWSStore = (
           }));
           break;
 
-        case "QuestionInfo":
+        case "QuestionsInfo":
           wsStore.update((d) => ({
             ...d,
             questions: msg.payload,

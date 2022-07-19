@@ -12,6 +12,8 @@
       options,
     });
     creating = false;
+    title = "";
+    options = ["", ""];
   };
   const addOption = () => {
     options = [...options, `Answer ${options.length + 1}`];
