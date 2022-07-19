@@ -7,7 +7,7 @@
 </script>
 
 <div
-  class={`flex justify-center items-center w-full transition-all group ${
+  class={`group flex w-full items-center justify-center transition-all ${
     color === "Red"
       ? "bg-red-500"
       : color === "Yellow"
@@ -20,7 +20,7 @@
 >
   {#if cupPerc > 0}
     <p
-      class="text-3xl font-bold text-gray-800 opacity-0 group-hover:opacity-100 transition"
+      class="text-3xl font-bold text-gray-800 opacity-0 transition group-hover:opacity-100"
     >
       {cups} cups ({(100 * cupPerc).toFixed(2)}%)
     </p>

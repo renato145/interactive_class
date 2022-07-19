@@ -51,7 +51,7 @@
       </div>
     {/each}
     <button
-      class="btn block mt-2"
+      class="btn mt-2 block"
       type="button"
       on:click|preventDefault={() => addOption()}>Add answer option</button
     >
