@@ -5,6 +5,7 @@ import type { ConnectionType } from "bindings/ConnectionType";
 import type { CupColor } from "bindings/CupColor";
 import type { Question } from "bindings/Question";
 import type { QuestionInfo } from "bindings/QuestionInfo";
+import type { QuestionPublication } from "bindings/QuestionPublication";
 
 export interface WSData {
   room_name: string;
@@ -88,6 +89,7 @@ export const getWSStore = (
           break;
 
         case "QuestionPublication":
+          questionsStore.set(msg.payload);
           break;
 
         case "Error":
@@ -141,4 +143,4 @@ export const getWSStore = (
   return { wsStore, chooseCup, createQuestion, publishQuestion };
 };
 
-export const questionsStore = writable<Question>(null);
+export const questionsStore = writable<QuestionPublication>(null);

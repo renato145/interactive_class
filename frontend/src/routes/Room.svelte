@@ -1,8 +1,11 @@
 <script lang="ts">
+  import { onDestroy } from "svelte";
   import type { CupColor } from "bindings/CupColor";
+  import type { QuestionPublication } from "bindings/QuestionPublication";
+  import QuestionViewStudent from "../components/QuestionViewStudent.svelte";
   import WsError from "../components/WSError.svelte";
   import WsStatus from "../components/WSStatus.svelte";
-  import { getWSStore } from "../stores/ws";
+  import { getWSStore, questionsStore } from "../stores/ws";
   export let roomName;
 
   let { wsStore, chooseCup: chooseCup_ } = getWSStore(roomName, "Student");
@@ -11,6 +14,17 @@
     color = cupColor;
     chooseCup_(cupColor);
   };
+
+  let questions: QuestionPublication[] = [];
+  let unsubscribe = questionsStore.subscribe((question) => {
+    if (question !== null) {
+      questions = [...questions, question];
+    }
+  });
+
+  onDestroy(() => {
+    unsubscribe();
+  });
 </script>
 
 <div>
@@ -69,4 +83,12 @@
       </button>
     </div>
   </div>
+
+  {#if questions.length > 0}
+    <div class="mt-8 flex flex-wrap gap-8">
+      {#each questions as question}
+        <QuestionViewStudent {question} />
+      {/each}
+    </div>
+  {/if}
 </div>
