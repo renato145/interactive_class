@@ -59,7 +59,7 @@ impl TestApp {
         });
         let mut connection = self.get_ws_connection().await;
         let room_info = send_ws_msg(&mut connection, msg).await;
-        let questions_info = if matches!(room_info, ClientMessage::RoomInfo(_)) {
+        let questions_info = if matches!(connection_type, ConnectionType::Teacher) {
             Some(get_next_ws_msg(&mut connection).await)
         } else {
             None

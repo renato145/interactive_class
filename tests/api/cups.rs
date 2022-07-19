@@ -70,13 +70,7 @@ async fn get_info_when_student_connects() {
         }
         msg => panic!("Invalid msg: {msg:?}"),
     }
-
-    match questions_info {
-        Some(ClientMessage::QuestionsInfo(msg)) => {
-            assert_eq!(msg.len(), 0);
-        }
-        msg => panic!("Invalid msg: {msg:?}"),
-    }
+    assert!(questions_info.is_none());
 }
 
 #[actix_rt::test]
