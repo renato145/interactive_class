@@ -134,8 +134,8 @@ impl WSSession {
         }
     }
 
-    /// Connects to a room, returns room information to the client and
-    /// broadcast information to teachers
+    /// Connects to a room, send room information to the client and broadcast information to teachers.
+    /// If the client is a Teacher it also send questions information.
     #[tracing::instrument(skip(self, addr))]
     fn room_connect(&mut self, room_info: RoomConnectInfo, addr: Addr<Self>) {
         let room_name = room_info.room_name;
@@ -153,9 +153,12 @@ impl WSSession {
                         .is_none(),
                 };
                 if added {
-                    Ok(ClientMessage::from_questions_map(
-                        room_state.questions.clone(),
-                    ))
+                    match room_info.connection_type {
+                        ConnectionType::Student => Ok(None),
+                        ConnectionType::Teacher => Ok(Some(ClientMessage::from_questions_map(
+                            room_state.questions.clone(),
+                        ))),
+                    }
                 } else {
                     Err(WSError::AlreadyConnected)
                 }
@@ -168,7 +171,9 @@ impl WSSession {
                 let msg = self.get_room_info();
                 addr.do_send(msg.clone());
                 // Send available questions
-                addr.do_send(question_info);
+                if let Some(question_info) = question_info {
+                    addr.do_send(question_info);
+                }
                 // Broadcast room info about new connection
                 if let ConnectionType::Student = room_info.connection_type {
                     self.broadcast_message(msg, ConnectionType::Teacher);
@@ -220,6 +225,7 @@ impl WSSession {
             Some(room) => match self.state.rooms.lock().unwrap().get(room) {
                 Some(room_state) => match room_state.questions.get(&question_id.0) {
                     Some(question) => ClientMessage::QuestionPublication(QuestionPublication {
+                        id: question_id,
                         title: question.title.clone(),
                         options: question.options.clone(),
                     }),

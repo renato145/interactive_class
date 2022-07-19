@@ -19,10 +19,6 @@ export interface WSData {
   error_msg: string | null;
 }
 
-/**
- * @param roomname
- * @returns wsMessageStore and sendWSMessage
- */
 export const getWSStore = (
   room_name: string,
   connection_type: ConnectionType
@@ -44,6 +40,13 @@ export const getWSStore = (
     sendWSMessage({
       task: "CreateQuestion",
       payload: question,
+    });
+  };
+
+  const publishQuestion = (question_id: string) => {
+    sendWSMessage({
+      task: "PublishQuestion",
+      payload: question_id,
     });
   };
 
@@ -135,5 +138,7 @@ export const getWSStore = (
     }
   );
 
-  return { wsStore, chooseCup, createQuestion };
+  return { wsStore, chooseCup, createQuestion, publishQuestion };
 };
+
+export const questionsStore = writable<Question>(null);

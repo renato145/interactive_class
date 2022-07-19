@@ -158,6 +158,7 @@ pub struct QuestionInfo {
 #[derive(Clone, Debug, Deserialize, Serialize, TS)]
 #[ts(export, export_to = "frontend/bindings/")]
 pub struct QuestionPublication {
+    pub id: QuestionId,
     pub title: String,
     pub options: Vec<String>,
 }

@@ -7,7 +7,10 @@
   import { getWSStore } from "../stores/ws";
   export let roomName;
 
-  let { wsStore, createQuestion } = getWSStore(roomName, "Teacher");
+  let { wsStore, createQuestion, publishQuestion } = getWSStore(
+    roomName,
+    "Teacher"
+  );
 </script>
 
 <div>
@@ -43,6 +46,6 @@
   <!-- Questions -->
   <div class="mt-8"><QuestionForm {createQuestion} /></div>
   <div class="mt-4">
-    <QuestionViewAll questions={$wsStore.questions} />
+    <QuestionViewAll questions={$wsStore.questions} {publishQuestion} />
   </div>
 </div>
