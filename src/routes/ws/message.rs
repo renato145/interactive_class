@@ -161,8 +161,6 @@ pub struct QuestionPublication {
     pub id: QuestionId,
     pub title: String,
     pub options: Vec<String>,
-    /// Number of students who got the question
-    pub students: usize,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize, TS)]

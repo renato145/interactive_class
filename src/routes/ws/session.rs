@@ -228,7 +228,6 @@ impl WSSession {
                         id: question_id,
                         title: question.title.clone(),
                         options: question.options.clone(),
-                        students: room_state.teacher_connections.len(),
                     }),
                     None => WSError::InvalidQuestionId(question_id.0).into(),
                 },
