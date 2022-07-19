@@ -17,7 +17,6 @@
   };
   const addOption = () => {
     options = [...options, `Answer ${options.length + 1}`];
-    console.log(options);
   };
 </script>
 

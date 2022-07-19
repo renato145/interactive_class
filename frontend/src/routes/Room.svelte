@@ -105,8 +105,7 @@
       {#each questions as question}
         <QuestionViewStudent
           {question}
-          answerQuestion={(i) =>
-            answerQuestion($wsStore.user_id, question.id, i)}
+          answerQuestion={(i) => answerQuestion(question.id, i)}
         />
       {/each}
     </div>

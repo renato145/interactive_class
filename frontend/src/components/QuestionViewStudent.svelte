@@ -15,7 +15,10 @@
   <p class="text-3xl font-medium">{question.title}</p>
   <div class="mt-4 flex flex-wrap gap-4">
     {#each question.options as option, i}
-      <button class="btn" on:click={() => submitAnswerQuestion(i)}>
+      <button
+        class={`btn ${i === selection ? "bg-green-400" : ""}`}
+        on:click={() => submitAnswerQuestion(i)}
+      >
         {option}
       </button>
     {/each}
