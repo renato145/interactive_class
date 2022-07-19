@@ -8,6 +8,7 @@ import type { QuestionInfo } from "bindings/QuestionInfo";
 import type { QuestionPublication } from "bindings/QuestionPublication";
 
 export interface WSData {
+  user_id: string;
   room_name: string;
   status: "disconnected" | "connected" | "working" | "error";
   connections: number;
@@ -51,6 +52,16 @@ export const getWSStore = (
     });
   };
 
+  const answerQuestion = (user_id: string, question_id: string, answer) => {
+    sendWSMessage({
+      task: "AnswerQuestion",
+      payload: {
+        ...
+      }
+    });
+
+  };
+
   const initWS = () => {
     const ws = new WebSocket("ws://localhost:8000/ws");
     ws.onopen = () => {
@@ -72,6 +83,7 @@ export const getWSStore = (
         case "RoomInfo":
           wsStore.update((d) => ({
             ...d,
+            user_id: msg.payload.user_id,
             connections: msg.payload.connections,
             cups: {
               green: msg.payload.green,
@@ -117,6 +129,7 @@ export const getWSStore = (
 
   const wsStore = writable<WSData>(
     {
+      user_id: null,
       room_name,
       status: "disconnected",
       connections: 0,
@@ -140,7 +153,13 @@ export const getWSStore = (
     }
   );
 
-  return { wsStore, chooseCup, createQuestion, publishQuestion };
+  return {
+    wsStore,
+    chooseCup,
+    createQuestion,
+    publishQuestion,
+    answerQuestion,
+  };
 };
 
 export const questionsStore = writable<QuestionPublication>(null);

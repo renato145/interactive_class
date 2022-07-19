@@ -8,7 +8,11 @@
   import { getWSStore, questionsStore } from "../stores/ws";
   export let roomName;
 
-  let { wsStore, chooseCup: chooseCup_ } = getWSStore(roomName, "Student");
+  let {
+    wsStore,
+    chooseCup: chooseCup_,
+    answerQuestion,
+  } = getWSStore(roomName, "Student");
   let color: CupColor;
   const chooseCup = (cupColor: CupColor) => {
     color = cupColor;
@@ -26,7 +30,7 @@
 
       const timeoutID = setTimeout(() => {
         questions = questions.filter((q) => q.id !== question.id);
-      }, 5000);
+      }, 10000);
       questions = [
         ...questions.filter((d) => d.id !== question.id),
         { ...question, timeoutID },
@@ -99,7 +103,11 @@
   {#if questions.length > 0}
     <div class="mt-8 flex flex-wrap gap-8">
       {#each questions as question}
-        <QuestionViewStudent {question} />
+        <QuestionViewStudent
+          {question}
+          answerQuestion={(i) =>
+            answerQuestion($wsStore.user_id, question.id, i)}
+        />
       {/each}
     </div>
   {/if}

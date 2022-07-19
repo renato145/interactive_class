@@ -1,18 +1,23 @@
 <script lang="ts">
   import type { QuestionPublication } from "bindings/QuestionPublication";
 
-  export let question: QuestionPublication;
+  export let question: QuestionPublication, answerQuestion: (i: number) => void;
+
+  let selection = -1;
+
+  const submitAnswerQuestion = (i: number) => {
+    selection = i;
+    answerQuestion(selection);
+  };
 </script>
 
 <div class="rounded-lg border border-gray-500 px-8 py-4 shadow">
   <p class="text-3xl font-medium">{question.title}</p>
   <div class="mt-4 flex flex-wrap gap-4">
     {#each question.options as option, i}
-      <div
-        class="cursor-default rounded-lg bg-slate-300 px-4 py-2 text-lg shadow"
-      >
+      <button class="btn" on:click={() => submitAnswerQuestion(i)}>
         {option}
-      </div>
+      </button>
     {/each}
   </div>
 </div>
