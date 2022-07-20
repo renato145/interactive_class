@@ -1,8 +1,8 @@
 use super::{
     error::WSError,
     message::{
-        ClientMessage, ConnectionType, CupColor, Question, QuestionAnswer, QuestionId,
-        QuestionModification, QuestionPublication, RoomConnectInfo, WSMessage,
+        ClientMessage, ConnectionType, CupColor, PublishQuestion, Question, QuestionAnswer,
+        QuestionId, QuestionModification, QuestionPublication, RoomConnectInfo, WSMessage,
     },
     ws,
 };
@@ -63,8 +63,8 @@ impl WSSession {
                 WSMessage::CreateQuestion(question) => {
                     self.create_question(question, addr);
                 }
-                WSMessage::PublishQuestion(question_id) => {
-                    self.publish_question(question_id, addr);
+                WSMessage::PublishQuestion(publish_question) => {
+                    self.publish_question(publish_question, addr);
                 }
                 WSMessage::DeleteQuestion(question_id) => {
                     self.delete_question(question_id, addr);
@@ -220,16 +220,18 @@ impl WSSession {
     }
 
     #[tracing::instrument(skip(self, addr))]
-    fn publish_question(&mut self, question_id: QuestionId, addr: Addr<Self>) {
+    fn publish_question(&mut self, publish_question: PublishQuestion, addr: Addr<Self>) {
+        let id = publish_question.id;
         let msg = match &self.room {
             Some(room) => match self.state.rooms.lock().unwrap().get(room) {
-                Some(room_state) => match room_state.questions.get(&question_id.0) {
+                Some(room_state) => match room_state.questions.get(&id.0) {
                     Some(question) => ClientMessage::QuestionPublication(QuestionPublication {
-                        id: question_id,
+                        id,
                         title: question.title.clone(),
                         options: question.options.clone(),
+                        secs: publish_question.secs,
                     }),
-                    None => WSError::InvalidQuestionId(question_id.0).into(),
+                    None => WSError::InvalidQuestionId(id.0).into(),
                 },
                 None => WSError::InvalidRoom(room.clone()).into(),
             },

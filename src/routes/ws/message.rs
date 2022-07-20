@@ -18,7 +18,7 @@ pub enum WSMessage {
     RoomConnect(RoomConnectInfo),
     ChooseCup(CupColor),
     CreateQuestion(Question),
-    PublishQuestion(QuestionId),
+    PublishQuestion(PublishQuestion),
     DeleteQuestion(QuestionId),
     ModifyQuestion(QuestionModification),
     AnswerQuestion(QuestionAnswer),
@@ -61,6 +61,14 @@ pub enum CupColor {
 pub struct Question {
     pub title: String,
     pub options: Vec<String>,
+}
+
+#[derive(Debug, Deserialize, TS)]
+#[ts(export, export_to = "frontend/bindings/")]
+pub struct PublishQuestion {
+    pub id: QuestionId,
+    /// Seconds for the question to be available to students
+    pub secs: usize,
 }
 
 /// Message to respond to client
@@ -161,6 +169,8 @@ pub struct QuestionPublication {
     pub id: QuestionId,
     pub title: String,
     pub options: Vec<String>,
+    /// Seconds for the question to be available to students
+    pub secs: usize,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize, TS)]

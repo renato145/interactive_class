@@ -208,10 +208,13 @@ pub async fn create_question(
     }
 }
 
-pub async fn publish_question(connection: &mut Connection, id: Uuid) -> ClientMessage {
+pub async fn publish_question(connection: &mut Connection, id: Uuid, secs: usize) -> ClientMessage {
     let msg = serde_json::json!({
         "task": "PublishQuestion",
-        "payload": id
+        "payload": {
+            "id": id,
+            "secs": secs,
+        }
     });
     send_ws_msg(connection, msg).await
 }

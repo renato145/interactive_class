@@ -44,7 +44,7 @@ async fn students_see_questions_on_publish() {
     // Create question
     let question_info = create_question(&mut teacher_connection, title, &options).await;
     // Publish question
-    publish_question(&mut teacher_connection, question_info.id.0).await;
+    publish_question(&mut teacher_connection, question_info.id.0, 1).await;
     let msg = get_next_ws_msg(&mut student_connection).await;
 
     // Assert
