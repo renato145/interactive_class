@@ -46,6 +46,10 @@
   <!-- Questions -->
   <div class="mt-8"><QuestionForm {createQuestion} /></div>
   <div class="mt-4">
-    <QuestionViewAll questions={$wsStore.questions} {publishQuestion} />
+    <QuestionViewAll
+      questions={$wsStore.questions}
+      {publishQuestion}
+      connections={$wsStore.connections}
+    />
   </div>
 </div>

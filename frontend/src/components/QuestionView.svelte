@@ -1,8 +1,10 @@
 <script lang="ts">
   import type { QuestionInfo } from "bindings/QuestionInfo";
 
-  export let question: QuestionInfo,
+  export let connections: number, question: QuestionInfo,
     publishQuestion: (question_id: string) => void;
+
+  $: answers = question.answers.reduce((acc, x) => acc+x);
 </script>
 
 <div class="rounded-lg border border-gray-500 px-8 py-4 shadow">
@@ -23,5 +25,8 @@
         {question.answers[i]}
       </div>
     {/each}
+  </div>
+  <div class="mt-4 text-lg font-bold">
+    <p>Answers: <span>{answers}/{connections}</span></p>
   </div>
 </div>
