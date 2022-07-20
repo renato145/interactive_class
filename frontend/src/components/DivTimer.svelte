@@ -15,8 +15,8 @@
     if (question !== null) {
       if (question_id === question.id) {
         if (timer !== null) clearInterval(timer);
-        time_secs = 5;
-        remaining = 5;
+        time_secs = question.secs;
+        remaining = question.secs;
         timer = setInterval(() => {
           remaining = Math.max(0, remaining - 1);
         }, 1000);
@@ -29,9 +29,9 @@
 
 {#if remaining > 0}
   <div transition:fade class={`flex items-center ${klass}`}>
-    <div class="h-4 w-full bg-gray-400">
+    <div class="h-4 w-full bg-gray-300">
       <div
-        class="h-full bg-green-600"
+        class="h-full bg-green-700"
         style:width={`${(100 * remaining) / time_secs}%`}
       />
     </div>

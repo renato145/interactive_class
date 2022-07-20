@@ -30,7 +30,7 @@
 
       const timeoutID = setTimeout(() => {
         questions = questions.filter((q) => q.id !== question.id);
-      }, 5000);
+      }, question.secs * 1000);
       questions = [
         ...questions.filter((d) => d.id !== question.id),
         { ...question, timeoutID },

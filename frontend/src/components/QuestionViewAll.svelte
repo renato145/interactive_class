@@ -4,7 +4,7 @@
 
   export let connections: number,
     questions: QuestionInfo[],
-    publishQuestion: (question_id: string) => void;
+    publishQuestion: (question_id: string, secs: number) => void;
 </script>
 
 {#if questions}

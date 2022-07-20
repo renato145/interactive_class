@@ -5,28 +5,38 @@
 
   export let connections: number,
     question: QuestionInfo,
-    publishQuestion: (question_id: string) => void;
+    publishQuestion: (question_id: string, secs: number) => void;
 
   $: answers = question.answers.reduce((acc, x) => acc + x);
+  let publishTime = 10;
 
   const doPublishQuestion = () => {
-    publishQuestion(question.id);
+    publishQuestion(question.id, publishTime);
     questionsStore.set({
       id: question.id,
       title: question.title,
       options: question.options,
+      secs: publishTime,
     });
   };
 </script>
 
-<div class="rounded-lg border border-gray-500 px-8 pt-4 shadow">
-  <p class="text-3xl font-medium">{question.title}</p>
-  <DivTimer class="-mx-4" question_id={question.id} />
-  <div class="mt-2">
-    <button class="btn" on:click={doPublishQuestion}>Publish</button>
-    <button class="btn">Edit</button>
-    <button class="btn">Delete</button>
+<div class="rounded-lg border border-gray-500 px-8 py-4 shadow">
+  <div class="flex justify-between items-center">
+    <p class="text-3xl font-medium">{question.title}</p>
+    <div>
+      <button class="btn">Edit</button>
+      <button class="btn">Delete</button>
+    </div>
   </div>
+  <div class="mt-4 flex">
+    <label class=""
+      >Publish time (seconds):
+      <input class="ml-2 w-16 p-1" type="number" bind:value={publishTime} />
+    </label>
+    <button class="ml-4 btn" on:click={doPublishQuestion}>Publish</button>
+  </div>
+  <DivTimer class="-mx-4" question_id={question.id} />
   <div class="mt-4 flex flex-wrap gap-4">
     {#each question.options as option, i}
       <div

@@ -44,10 +44,13 @@ export const getWSStore = (
     });
   };
 
-  const publishQuestion = (question_id: string) => {
+  const publishQuestion = (question_id: string, secs: number) => {
     sendWSMessage({
       task: "PublishQuestion",
-      payload: question_id,
+      payload: {
+        id: question_id,
+        secs,
+      },
     });
   };
 
