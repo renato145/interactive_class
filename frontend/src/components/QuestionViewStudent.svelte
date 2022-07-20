@@ -12,13 +12,13 @@
   };
 </script>
 
-<div class="rounded-lg border border-gray-500 px-8 py-4 shadow">
+<div class="min-w-[300px] rounded-lg border border-gray-500 px-8 py-4 shadow">
   <p class="text-3xl font-medium">{question.title}</p>
   <DivTimer class="-mx-4" question_id={question.id} />
   <div class="mt-4 flex flex-wrap gap-4">
     {#each question.options as option, i}
       <button
-        class={`btn ${i === selection ? "bg-green-400" : ""}`}
+        class={`btn min-w-[100px] ${i === selection ? "bg-green-400" : ""}`}
         on:click={() => submitAnswerQuestion(i)}
       >
         {option}
