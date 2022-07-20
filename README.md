@@ -10,6 +10,7 @@
   - [ ] Delete question
 
 - [ ] Deployment
+	- [ ] Prepare svelte build
 	- [ ] Create docker image
 	- [ ] Push to heroku
 	- [ ] Set GH Actions

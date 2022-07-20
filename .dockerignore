@@ -1,0 +1,5 @@
+.dockerignore
+target/
+tests/
+Dockerfile
+frontend/
