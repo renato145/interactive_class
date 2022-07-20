@@ -22,9 +22,11 @@ checks:
 
 tests:
   cargo test
+  cd frontend && pnpm run format-bindings
 
 tests_logs:
   TEST_LOG=enabled cargo test | bunyan
+  cd frontend && pnpm run format-bindings
 
 run:
   cargo run --release | bunyan
