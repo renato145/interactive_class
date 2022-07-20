@@ -1,7 +1,6 @@
 <script lang="ts">
   import type { QuestionInfo } from "bindings/QuestionInfo";
   import DivTimer from "./DivTimer.svelte";
-  import { questionsStore } from "../stores/ws";
 
   export let connections: number,
     question: QuestionInfo,
@@ -12,17 +11,11 @@
 
   const doPublishQuestion = () => {
     publishQuestion(question.id, publishTime);
-    questionsStore.set({
-      id: question.id,
-      title: question.title,
-      options: question.options,
-      secs: publishTime,
-    });
   };
 </script>
 
 <div class="rounded-lg border border-gray-500 px-8 py-4 shadow">
-  <div class="flex justify-between items-center">
+  <div class="flex items-center justify-between">
     <p class="text-3xl font-medium">{question.title}</p>
     <div>
       <button class="btn">Edit</button>
@@ -34,7 +27,7 @@
       >Publish time (seconds):
       <input class="ml-2 w-16 p-1" type="number" bind:value={publishTime} />
     </label>
-    <button class="ml-4 btn" on:click={doPublishQuestion}>Publish</button>
+    <button class="btn ml-4" on:click={doPublishQuestion}>Publish</button>
   </div>
   <DivTimer class="-mx-4" question_id={question.id} />
   <div class="mt-4 flex flex-wrap gap-4">

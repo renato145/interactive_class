@@ -237,8 +237,8 @@ impl WSSession {
             },
             None => WSError::NoRoom.into(),
         };
-        addr.do_send(ClientMessage::Ok);
-        self.broadcast_message(msg, ConnectionType::Student);
+        addr.do_send(msg.clone());
+        self.broadcast_all(msg);
     }
 
     #[tracing::instrument(skip(self, addr))]
