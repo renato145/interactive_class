@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { QuestionPublication } from "bindings/QuestionPublication";
+  import DivTimer from "./DivTimer.svelte";
 
   export let question: QuestionPublication, answerQuestion: (i: number) => void;
 
@@ -13,6 +14,7 @@
 
 <div class="rounded-lg border border-gray-500 px-8 py-4 shadow">
   <p class="text-3xl font-medium">{question.title}</p>
+  <DivTimer class="-mx-4" question_id={question.id} />
   <div class="mt-4 flex flex-wrap gap-4">
     {#each question.options as option, i}
       <button

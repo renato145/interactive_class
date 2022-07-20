@@ -1,18 +1,29 @@
 <script lang="ts">
   import type { QuestionInfo } from "bindings/QuestionInfo";
+  import DivTimer from "./DivTimer.svelte";
+  import { questionsStore } from "../stores/ws";
 
-  export let connections: number, question: QuestionInfo,
+  export let connections: number,
+    question: QuestionInfo,
     publishQuestion: (question_id: string) => void;
 
-  $: answers = question.answers.reduce((acc, x) => acc+x);
+  $: answers = question.answers.reduce((acc, x) => acc + x);
+
+  const doPublishQuestion = () => {
+    publishQuestion(question.id);
+    questionsStore.set({
+      id: question.id,
+      title: question.title,
+      options: question.options,
+    });
+  };
 </script>
 
-<div class="rounded-lg border border-gray-500 px-8 py-4 shadow">
+<div class="rounded-lg border border-gray-500 px-8 pt-4 shadow">
   <p class="text-3xl font-medium">{question.title}</p>
+  <DivTimer class="-mx-4" question_id={question.id} />
   <div class="mt-2">
-    <button class="btn" on:click={() => publishQuestion(question.id)}
-      >Publish</button
-    >
+    <button class="btn" on:click={doPublishQuestion}>Publish</button>
     <button class="btn">Edit</button>
     <button class="btn">Delete</button>
   </div>
