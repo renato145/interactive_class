@@ -4,10 +4,10 @@ _default:
 dev:
   RUST_LOG=debug cargo run | bunyan
 
-watch_dev:
+watch-dev:
   RUST_LOG=debug cargo watch --clear -i "tests" -i "frontend" -x "run | bunyan"
 
-refresh_bindings:
+refresh-bindings:
   rm frontend/bindings/*
   cargo test --lib
   cd frontend && pnpm run format-bindings
