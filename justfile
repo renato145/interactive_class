@@ -28,5 +28,9 @@ tests_logs:
   TEST_LOG=enabled cargo test | bunyan
   cd frontend && pnpm run format-bindings
 
+build: refresh_bindings
+  cargo build --release
+  cd frontend && pnpm run build
+
 run:
   cargo run --release | bunyan
