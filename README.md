@@ -13,4 +13,4 @@
 	- [x] Prepare svelte build
 	- [x] Create docker image
 	- [ ] Push to heroku
-	- [ ] Set GH Actions
+	- [x] Set GH Actions
