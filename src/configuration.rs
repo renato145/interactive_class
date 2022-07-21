@@ -38,7 +38,7 @@ pub fn get_configuration() -> Result<Settings, config::ConfigError> {
         .try_into()
         .expect("Failed to parse APP_ENVIRONMENT.");
 
-    let settings = Config::builder()
+    let mut settings = Config::builder()
         // Read the "default" configuration file
         .add_source(config::File::from(configuration_directory.join("base")).required(true))
         // Layer on the environment-specific values.
@@ -48,9 +48,15 @@ pub fn get_configuration() -> Result<Settings, config::ConfigError> {
         // Add in settings from environment variables (with a prefix of APP and '__' as separator)
         // E.g. `APP__APPLICATION__PORT=5001` would set `Settings.application.port`
         .add_source(config::Environment::with_prefix("app").separator("__"))
-        .build()?;
+        .build()?
+        .try_deserialize::<Settings>()?;
 
-    settings.try_deserialize()
+    // For deploying to heroku we need to read the PORT environment variable
+    if let Ok(Ok(port)) = std::env::var("PORT").map(|x| x.parse()) {
+        settings.application.port = port;
+    }
+
+    Ok(settings)
 }
 
 /// The possible runtime environment for our application.
