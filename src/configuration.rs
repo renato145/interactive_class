@@ -14,7 +14,6 @@ pub struct ApplicationSettings {
     #[serde(deserialize_with = "deserialize_number_from_string")]
     pub port: u16,
     pub host: String,
-    pub base_url: String,
 }
 
 #[serde_as]
@@ -47,7 +46,7 @@ pub fn get_configuration() -> Result<Settings, config::ConfigError> {
             config::File::from(configuration_directory.join(environment.as_str())).required(true),
         )
         // Add in settings from environment variables (with a prefix of APP and '__' as separator)
-        // E.g. `APP_APPLICATION__PORT=5001` would set `Settings.application.port`
+        // E.g. `APP__APPLICATION__PORT=5001` would set `Settings.application.port`
         .add_source(config::Environment::with_prefix("app").separator("__"))
         .build()?;
 
