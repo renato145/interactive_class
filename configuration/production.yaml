@@ -1,5 +1,5 @@
 application:
   host: 0.0.0.0
 websocket:
-  heartbeat_interval: 1000
+  heartbeat_interval: 5000
   client_timeout: 10000
