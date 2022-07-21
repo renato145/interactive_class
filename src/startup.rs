@@ -41,6 +41,11 @@ impl Application {
 
 pub struct ApplicationBaseUrl(pub String);
 
+/// Index for the single web app
+async fn spa_index() -> actix_files::NamedFile {
+    actix_files::NamedFile::open("./frontend/dist/index.html").unwrap()
+}
+
 pub async fn run(
     listener: TcpListener,
     base_url: String,
@@ -52,20 +57,18 @@ pub async fn run(
     let server = HttpServer::new(move || {
         App::new()
             .wrap(TracingLogger::default())
-            // .route("/", web::get().to(home))
             .route("/health_check", web::get().to(health_check_route))
             .route("/ws", web::get().to(ws))
             .service(
                 web::scope("/cups")
                     .route("", web::get().to(get_cups_info))
                     .route("/create_room", web::post().to(create_room)),
-                // .service(get_cups_room),
             )
-            // .service(actix_files::Files::new("/static", "./static"))
-            // .default_service(web::get().to(not_found))
+            .service(actix_files::Files::new("/", "./frontend/dist").index_file("index.html"))
+            .default_service(web::get().to(spa_index))
             .app_data(base_url.clone())
             .app_data(websocket_settings.clone())
-            .app_data(app_state.clone())
+            .app_data(app_state.clone()) //
     })
     .listen(listener)?
     .run();
