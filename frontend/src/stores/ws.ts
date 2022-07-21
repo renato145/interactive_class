@@ -65,7 +65,10 @@ export const getWSStore = (
   };
 
   const initWS = () => {
-    const ws = new WebSocket(`ws://${location.host}/ws`);
+    const url = import.meta.env.PROD
+      ? `wss://${location.host}/ws`
+      : "ws://localhost:8000/ws";
+    const ws = new WebSocket(url);
     ws.onopen = () => {
       console.log("Starting WebSocket...");
       wsStore.update((d) => ({ ...d, status: "connected" }));
