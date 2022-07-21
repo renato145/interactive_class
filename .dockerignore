@@ -2,4 +2,7 @@
 target/
 tests/
 Dockerfile
-frontend/
+.vscode/
+frontend/.vscode
+frontend/dist
+frontend/node_modules

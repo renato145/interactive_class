@@ -24,13 +24,16 @@ tests:
   cargo test
   cd frontend && pnpm run format-bindings
 
-tests_logs:
+tests-logs:
   TEST_LOG=enabled cargo test | bunyan
   cd frontend && pnpm run format-bindings
 
-build: refresh_bindings
+build: refresh-bindings
   cargo build --release
   cd frontend && pnpm run build
+
+docker-build:
+  docker build -t interactive-class .
 
 run:
   cargo run --release | bunyan
