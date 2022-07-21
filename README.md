@@ -2,15 +2,10 @@
 
 - [x] Web similar to cups.fast.ai
 	- [x] Teacher web /cups/[class]/teacher
+		- [ ] Delete room
 	- [x] Student web /cups/[class]
 - [ ] Add capabilities to ask simple questions
   - [x] Create question
   - [x] Publish question
   - [ ] Modify question
   - [ ] Delete question
-
-- [ ] Deployment
-	- [x] Prepare svelte build
-	- [x] Create docker image
-	- [ ] Push to heroku
-	- [x] Set GH Actions
