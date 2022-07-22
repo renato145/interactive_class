@@ -16,7 +16,7 @@
   <div class="flex flex-wrap items-center justify-between">
     <p class="text-3xl font-medium">{question.title}</p>
     <div class="ml-2 text-sm">
-      <button class="btn">Edit</button>
+      <button class="btn" disabled>Edit</button>
       <button class="btn-cancel" on:click={() => deleteQuestion(question.id)}
         >Delete</button
       >
