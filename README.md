@@ -8,4 +8,5 @@
   - [x] Create question
   - [x] Publish question
   - [ ] Modify question
-  - [ ] Delete question
+  - [x] Delete question
+
