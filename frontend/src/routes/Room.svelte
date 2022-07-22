@@ -64,7 +64,11 @@
       }`}
       viewBox="0 0 218 227"
     >
-      <path d="M175 1H42L1 226H217L175 1Z" />
+      <path
+        class="stroke-gray-900 stroke-2"
+        d="M175 1H42L1 226H217L175 1Z"
+        stroke-linejoin="round"
+      />
     </svg>
   </div>
 
