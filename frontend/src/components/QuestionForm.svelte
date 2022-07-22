@@ -16,7 +16,7 @@
     options = ["", ""];
   };
   const addOption = () => {
-    options = [...options, `Answer ${options.length + 1}`];
+    options = [...options, ""];
   };
 </script>
 
