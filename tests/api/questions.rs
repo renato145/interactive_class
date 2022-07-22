@@ -2,6 +2,7 @@ use crate::helpers::{
     answer_question, create_question, delete_question, get_next_ws_msg, modify_question,
     publish_question, spawn_app,
 };
+use futures::SinkExt;
 use interactive_class::routes::message::{ClientMessage, ConnectionType};
 
 #[actix_rt::test]
@@ -243,5 +244,40 @@ async fn modify_questions_keep_answer_information() {
             Some(options.clone()),
         )
         .await;
+    }
+}
+
+#[actix_rt::test]
+async fn answers_get_deleted_when_student_disconnects() {
+    // Arrange
+    let app = spawn_app().await;
+    let room_name = "test_room";
+    let title = "test question";
+    let options = vec!["option1", "option2", "option3"];
+    let answer = 1;
+
+    // Act
+    // Create room
+    app.create_cups_room(room_name).await;
+    // Start connections
+    let (mut teacher_connection, mut student_connection) =
+        app.get_ws_teacher_student_connections(room_name).await;
+    // Create question
+    let question_info = create_question(&mut teacher_connection, title, &options).await;
+    // Answer questions
+    answer_question(&mut student_connection, question_info.id.0, answer).await;
+    get_next_ws_msg(&mut teacher_connection).await;
+    // Student disconnects
+    student_connection.close().await.unwrap();
+    get_next_ws_msg(&mut teacher_connection).await;
+    let msg = get_next_ws_msg(&mut teacher_connection).await;
+
+    // Assert
+    match msg {
+        ClientMessage::QuestionsInfo(info) => {
+            let question = info.iter().last().unwrap();
+            assert_eq!(question.answers[answer], 0)
+        }
+        msg => panic!("Invalid msg: {msg:?}"),
     }
 }

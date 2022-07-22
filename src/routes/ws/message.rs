@@ -41,7 +41,7 @@ pub struct RoomConnectInfo {
     pub connection_type: ConnectionType,
 }
 
-#[derive(Debug, Deserialize, TS)]
+#[derive(Clone, Copy, Debug, Deserialize, TS)]
 #[ts(export, export_to = "frontend/bindings/")]
 pub enum ConnectionType {
     Student,

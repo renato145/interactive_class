@@ -21,6 +21,7 @@ pub struct WSSession {
     room: Option<String>,
     state: web::Data<AppState>,
     settings: WSSettings,
+    connection_type: Option<ConnectionType>,
 }
 
 impl WSSession {
@@ -31,6 +32,7 @@ impl WSSession {
             room: None,
             state,
             settings,
+            connection_type: None,
         }
     }
 
@@ -140,6 +142,7 @@ impl WSSession {
     fn room_connect(&mut self, room_info: RoomConnectInfo, addr: Addr<Self>) {
         let room_name = room_info.room_name;
         self.room = Some(room_name.clone());
+        self.connection_type = Some(room_info.connection_type);
         let msg = match self.state.rooms.lock().unwrap().get_mut(&room_name) {
             Some(room_state) => {
                 let added = match room_info.connection_type {
@@ -304,23 +307,42 @@ impl Actor for WSSession {
     }
 
     fn stopped(&mut self, _ctx: &mut Self::Context) {
-        match &self.room {
+        let question_info = match &self.room {
             Some(name) => match self.state.rooms.lock().unwrap().get_mut(name) {
                 Some(room_state) => {
+                    // Removing connection
                     if room_state.student_connections.remove(&self.id).is_none() {
                         tracing::warn!(error.message = %WSError::InvalidRoom(name.clone()), "Couldn't remove session.");
                     }
+                    // Removing answers
+                    if let Some(ConnectionType::Student) = self.connection_type {
+                        room_state
+                            .questions
+                            .values_mut()
+                            .for_each(|question_state| {
+                                question_state.answers.remove(&self.id);
+                            });
+                    }
+                    room_state.questions.clone()
                 }
                 None => {
                     tracing::warn!(error.message = %WSError::InvalidRoom(name.clone()));
+                    return;
                 }
             },
             None => {
                 tracing::warn!(error.message = %WSError::NoRoom);
+                return;
             }
-        }
+        };
+        // Send room information
         let msg = self.get_room_info();
         self.broadcast_all(msg);
+        // Send question information
+        self.broadcast_message(
+            ClientMessage::from_questions_map(question_info),
+            ConnectionType::Teacher,
+        );
     }
 }
 
