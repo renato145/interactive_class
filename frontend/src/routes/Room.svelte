@@ -51,6 +51,16 @@
   <div class="mt-4">
     <WsError error_msg={$wsStore.error_msg} />
   </div>
+  {#if questions.length > 0}
+    <div class="mt-2 flex flex-wrap justify-center gap-8">
+      {#each questions as question}
+        <QuestionViewStudent
+          {question}
+          answerQuestion={(i) => answerQuestion(question.id, i)}
+        />
+      {/each}
+    </div>
+  {/if}
   <div class="mt-8">
     <svg
       class={`mx-auto aspect-square w-1/2 max-w-md ${
@@ -70,48 +80,38 @@
         stroke-linejoin="round"
       />
     </svg>
-  </div>
 
-  <div class="mt-4">
-    <div class="mx-auto flex w-1/2 max-w-md flex-col space-y-2">
-      <button
-        class="rounded bg-green-200 p-2 text-left shadow hover:bg-green-400"
-        on:click={() => {
-          chooseCup("Green");
-        }}
-      >
-        Green - I am comfortable with my understanding and pacing of the lesson
-      </button>
+    <div class="mt-4">
+      <div class="mx-auto flex w-1/2 max-w-md flex-col space-y-2">
+        <button
+          class="rounded bg-green-200 p-2 text-left shadow hover:bg-green-400"
+          on:click={() => {
+            chooseCup("Green");
+          }}
+        >
+          Green - I am comfortable with my understanding and pacing of the
+          lesson
+        </button>
 
-      <button
-        class="rounded bg-yellow-200 p-2 text-left shadow hover:bg-yellow-300"
-        on:click={() => {
-          chooseCup("Yellow");
-        }}
-      >
-        Yellow - I am working through my understanding, I would benefit from the
-        teacher slowing down or revisiting the current concept
-      </button>
+        <button
+          class="rounded bg-yellow-200 p-2 text-left shadow hover:bg-yellow-300"
+          on:click={() => {
+            chooseCup("Yellow");
+          }}
+        >
+          Yellow - I am working through my understanding, I would benefit from
+          the teacher slowing down or revisiting the current concept
+        </button>
 
-      <button
-        class="rounded bg-red-200 p-2 text-left shadow hover:bg-red-400"
-        on:click={() => {
-          chooseCup("Red");
-        }}
-      >
-        Red - STOP! I am not understanding and I have a question
-      </button>
+        <button
+          class="rounded bg-red-200 p-2 text-left shadow hover:bg-red-400"
+          on:click={() => {
+            chooseCup("Red");
+          }}
+        >
+          Red - STOP! I am not understanding and I have a question
+        </button>
+      </div>
     </div>
   </div>
-
-  {#if questions.length > 0}
-    <div class="mt-8 flex flex-wrap gap-8">
-      {#each questions as question}
-        <QuestionViewStudent
-          {question}
-          answerQuestion={(i) => answerQuestion(question.id, i)}
-        />
-      {/each}
-    </div>
-  {/if}
 </div>

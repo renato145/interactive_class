@@ -6,6 +6,12 @@
     title = "",
     options = ["", ""];
 
+  const cancelQuestionCreate = () => {
+    creating = false;
+    title = "";
+    options = ["", ""];
+  };
+
   const submitCreateQuestion = () => {
     createQuestion({
       title,
@@ -15,6 +21,7 @@
     title = "";
     options = ["", ""];
   };
+
   const addOption = () => {
     options = [...options, ""];
   };
@@ -50,10 +57,15 @@
       </div>
     {/each}
     <button
-      class="btn mt-2 block"
+      class="btn mt-2 block text-sm"
       type="button"
       on:click|preventDefault={() => addOption()}>Add answer option</button
     >
-    <button class="btn mt-4" type="submit">Create question</button>
+    <button class="btn mt-4 text-lg" type="submit">Create question</button>
+    <button
+      class="btn-cancel"
+      type="button"
+      on:click|preventDefault={cancelQuestionCreate}>Cancel</button
+    >
   </form>
 {/if}

@@ -15,19 +15,21 @@
 </script>
 
 <div class="rounded-lg border border-gray-500 px-8 py-4 shadow">
-  <div class="flex items-center justify-between">
+  <div class="flex flex-wrap items-center justify-between">
     <p class="text-3xl font-medium">{question.title}</p>
-    <div>
+    <div class="text-sm">
       <button class="btn">Edit</button>
-      <button class="btn">Delete</button>
+      <button class="btn-cancel">Delete</button>
     </div>
   </div>
   <div class="mt-4 flex">
-    <label class=""
+    <label
       >Publish time (seconds):
       <input class="ml-2 w-16 p-1" type="number" bind:value={publishTime} />
     </label>
-    <button class="btn ml-4" on:click={doPublishQuestion}>Publish</button>
+    <button class="btn ml-4 font-bold" on:click={doPublishQuestion}
+      >Publish</button
+    >
   </div>
   <DivTimer class="-mx-4" question_id={question.id} />
   <div class="mt-4 flex flex-wrap gap-4">

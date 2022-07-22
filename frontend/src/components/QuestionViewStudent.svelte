@@ -18,7 +18,9 @@
   <div class="mt-4 flex flex-wrap gap-4">
     {#each question.options as option, i}
       <button
-        class={`btn min-w-[100px] ${i === selection ? "bg-green-600 hover:bg-green-400" : ""}`}
+        class={`btn min-w-[100px] ${
+          i === selection ? "bg-green-600 hover:bg-green-400" : ""
+        }`}
         on:click={() => submitAnswerQuestion(i)}
       >
         {option}

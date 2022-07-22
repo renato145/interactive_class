@@ -8,7 +8,7 @@
 </script>
 
 {#if questions}
-  <div class="flex gap-8">
+  <div class="flex flex-wrap gap-6">
     {#each questions as question}
       <QuestionView {question} {publishQuestion} {connections} />
     {/each}
