@@ -44,6 +44,13 @@ export const getWSStore = (
     });
   };
 
+  const deleteQuestion = (question_id: string) => {
+    sendWSMessage({
+      task: "DeleteQuestion",
+      payload: question_id,
+    });
+  };
+
   const publishQuestion = (question_id: string, secs: number) => {
     sendWSMessage({
       task: "PublishQuestion",
@@ -160,6 +167,7 @@ export const getWSStore = (
     wsStore,
     chooseCup,
     createQuestion,
+    deleteQuestion,
     publishQuestion,
     answerQuestion,
   };

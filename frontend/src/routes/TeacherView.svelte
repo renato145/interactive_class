@@ -7,7 +7,7 @@
   import { getWSStore } from "../stores/ws";
   export let roomName;
 
-  let { wsStore, createQuestion, publishQuestion } = getWSStore(
+  let { wsStore, createQuestion, deleteQuestion, publishQuestion } = getWSStore(
     roomName,
     "Teacher"
   );
@@ -49,6 +49,7 @@
     <QuestionViewAll
       questions={$wsStore.questions}
       {publishQuestion}
+      {deleteQuestion}
       connections={$wsStore.connections}
     />
   </div>
