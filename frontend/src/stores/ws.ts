@@ -115,6 +115,10 @@ export const getWSStore = (
           questionsStore.set(msg.payload);
           break;
 
+        case "QuestionDelete":
+          questionsDeleteStore.set(msg.payload);
+          break;
+
         case "Error":
           wsStore.update((d) => ({
             ...d,
@@ -174,3 +178,4 @@ export const getWSStore = (
 };
 
 export const questionsStore = writable<QuestionPublication>(null);
+export const questionsDeleteStore = writable<string>(null);

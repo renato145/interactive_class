@@ -257,7 +257,11 @@ impl WSSession {
             None => WSError::NoRoom.into(),
         };
         addr.do_send(msg.clone());
-        self.broadcast_all(msg);
+        self.broadcast_message(msg, ConnectionType::Teacher);
+        self.broadcast_message(
+            ClientMessage::QuestionDelete(question_id),
+            ConnectionType::Student,
+        );
     }
 
     #[tracing::instrument(skip(self, addr))]

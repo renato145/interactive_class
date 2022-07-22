@@ -5,7 +5,11 @@
   import QuestionViewStudent from "../components/QuestionViewStudent.svelte";
   import WsError from "../components/WSError.svelte";
   import WsStatus from "../components/WSStatus.svelte";
-  import { getWSStore, questionsStore } from "../stores/ws";
+  import {
+    getWSStore,
+    questionsStore,
+    questionsDeleteStore,
+  } from "../stores/ws";
   export let roomName;
 
   let {
@@ -20,7 +24,7 @@
   };
 
   let questions: (QuestionPublication & { timeoutID: number })[] = [];
-  let unsubscribe = questionsStore.subscribe((question) => {
+  const unsubscribeQuestionStore = questionsStore.subscribe((question) => {
     if (question !== null) {
       questions
         .filter((d) => d.id === question.id)
@@ -37,9 +41,15 @@
       ];
     }
   });
+  const unsubscribeQuestionDeleteStore = questionsDeleteStore.subscribe(
+    (question_id) => {
+      questions = questions.filter((d) => d.id !== question_id);
+    }
+  );
 
   onDestroy(() => {
-    unsubscribe();
+    unsubscribeQuestionStore();
+    unsubscribeQuestionDeleteStore();
   });
 </script>
 

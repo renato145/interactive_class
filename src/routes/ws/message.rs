@@ -82,6 +82,7 @@ pub enum ClientMessage {
     RoomInfo(RoomInfo),
     QuestionsInfo(Vec<QuestionInfo>),
     QuestionPublication(QuestionPublication),
+    QuestionDelete(QuestionId),
     Error(String),
 }
 
@@ -173,7 +174,7 @@ pub struct QuestionPublication {
     pub secs: usize,
 }
 
-#[derive(Clone, Debug, Deserialize, Serialize, TS)]
+#[derive(Clone, Debug, Deserialize, Serialize, TS, PartialEq, Eq)]
 #[ts(export, export_to = "frontend/bindings/")]
 pub struct QuestionId(#[ts(type = "string")] pub Uuid);
 

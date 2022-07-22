@@ -88,6 +88,36 @@ async fn delete_questions_works() {
 }
 
 #[actix_rt::test]
+async fn delete_questions_remove_it_on_student() {
+    // Arrange
+    let app = spawn_app().await;
+    let room_name = "test_room";
+    let title = "test question";
+    let options = vec!["option1", "option2", "option3"];
+
+    // Act
+    // Create room
+    app.create_cups_room(room_name).await;
+    // Start connections
+    let (mut teacher_connection, mut student_connection) =
+        app.get_ws_teacher_student_connections(room_name).await;
+    // Create question
+    let question_info = create_question(&mut teacher_connection, title, &options).await;
+    let question_id = question_info.id;
+    // Delete question
+    delete_question(&mut teacher_connection, question_id.0).await;
+    let msg = get_next_ws_msg(&mut student_connection).await;
+
+    // Assert
+    match msg {
+        ClientMessage::QuestionDelete(id) => {
+            assert_eq!(id, question_id);
+        }
+        msg => panic!("Invalid msg: {msg:?}"),
+    }
+}
+
+#[actix_rt::test]
 async fn modify_questions_works() {
     // Arrange
     let app = spawn_app().await;
