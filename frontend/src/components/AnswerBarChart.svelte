@@ -12,11 +12,11 @@
 
 <div class="flex flex-col">
   {#each data as { option, n, n_perc }}
-    <div class="flex mt-2">
-      <p class="py-2 font-semibold w-28 text-right">
+    <div class="mt-2 flex">
+      <p class="w-28 py-2 text-right font-semibold">
         {option}
       </p>
-      <div class="ml-3 bg-gray-300 flex-1 rounded border-2 border-gray-800">
+      <div class="ml-3 flex-1 rounded border-2 border-gray-800 bg-gray-300">
         {#if max_n > 0}
           <div
             class={`h-full rounded transition-all ${
@@ -30,7 +30,7 @@
           />
         {/if}
       </div>
-      <div class="text-2xl font-bold w-6 self-center text-center">
+      <div class="w-6 self-center text-center text-2xl font-bold">
         {n}
       </div>
     </div>

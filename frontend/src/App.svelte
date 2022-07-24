@@ -12,7 +12,7 @@
     </nav>
     <div class="mt-2 text-6xl">Interactive Class</div>
 
-    <div class="mt-8">
+    <div class="mt-6">
       <Route path="/">
         <Home />
       </Route>
