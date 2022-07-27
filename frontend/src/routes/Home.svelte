@@ -1,5 +1,6 @@
 <script lang="ts">
   import { navigate, Link } from "svelte-navigator";
+  import { t } from "svelte-i18n";
   import type { CupsInfo } from "bindings/CupsInfo";
   import type { CreateRoom } from "bindings/CreateRoom";
 
@@ -30,39 +31,35 @@
 
 <div>
   <p class="w-fit rounded-md bg-blue-100 p-3 text-lg shadow">
-    The idea to use cups comes from <a
-      href="http://cups.fast.ai"
-      target="_black"
-      rel="noopener">cups.fast.ai</a
-    >, here I have added the feature to ask questions. You can find the source
-    code
+    {$t("home.description1")}
+    <a href="http://cups.fast.ai" target="_black" rel="noopener">cups.fast.ai</a
+    >, {$t("home.description2")}
     <a
       href="https://github.com/renato145/interactive_class"
       target="_black"
-      rel="noopener">here</a
-    >
+      rel="noopener">{$t("home.link")}</a
+    >.
   </p>
 
   <div class="mt-8">
     {#await cups}
-      <p>loading...</p>
+      <p>{$t("loading_msg")}...</p>
     {:then data}
       <p class="text-3xl">
         {data.rooms.length}
-        {data.rooms.length > 1 ? "Rooms" : "Room"}
+        {data.rooms.length > 1 ? $t("rooms") : $t("room")}
       </p>
       <ul class="mt-2 ml-4">
         {#each data.rooms as room}
           <li class="text-lg list-disc list-inside">
             <span class="font-medium">{room}:</span>
-            <Link to={`room/${room}/teacher`}>[teacher view]</Link> - <Link
-              to={`room/${room}`}>[student view]</Link
-            >
+            <Link to={`room/${room}/teacher`}>[{$t("teacher-view")}]</Link>
+            - <Link to={`room/${room}`}>[{$t("student-view")}]</Link>
           </li>
         {/each}
       </ul>
     {:catch error}
-      <p>An error occurred: {error}</p>
+      <p>{$t("an-error-occurred")}: {error}</p>
     {/await}
   </div>
 
@@ -71,10 +68,10 @@
       type="text"
       id="new_room"
       name="new_room"
-      placeholder="New room name"
+      placeholder={$t("home.new-room-name")}
       required
     />
-    <button class="btn" type="submit">Create room</button>
+    <button class="btn" type="submit">{$t("home.create-room")}</button>
   </form>
   {#if createErrorMsg}
     <p class="bg-red-200">{createErrorMsg}</p>

@@ -1,0 +1,35 @@
+{
+  "title": "Interactive Class",
+  "home": {
+    "description1": "The idea to use cups comes from",
+    "description2": "here I have added the feature to ask questions. You can find the source code",
+    "link": "here",
+    "new-room-name": "New room name",
+    "create-room": "Create room"
+  },
+  "teacher-view": "teacher view",
+  "student-view": "student view",
+  "loading_msg": "loading",
+  "rooms": "Rooms",
+  "room": "Room",
+  "an-error-occurred": "An error occurred",
+  "student": "student",
+  "students": "students",
+  "question-title": "Question title",
+  "option": "Option",
+  "answers": "Answers",
+  "answer-option": "Answer option",
+  "answer-options": "Answer options",
+  "add-answer-option": "Add answer option",
+  "create-question": "Create question",
+  "create-new-question": "Create new question",
+  "cancel": "Cancel",
+  "delete": "Delete",
+  "publish": "Publish",
+  "publish-time-seconds": "Publish time (seconds)",
+  "cups": {
+    "green-description": "Green - I am comfortable with my understanding and pacing of the lesson",
+    "yellow-description": "Yellow - I am working through my understanding, I would benefit from the teacher slowing down or revisiting the current concept",
+    "red-description": "Red - STOP! I am not understanding and I have a question"
+  }
+}

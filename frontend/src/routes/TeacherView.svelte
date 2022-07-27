@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from "svelte-i18n";
   import WsError from "../components/WSError.svelte";
   import WsStatus from "../components/WSStatus.svelte";
   import CupsSummary from "../components/CupsSummary.svelte";
@@ -17,13 +18,13 @@
   <div class="flex align-bottom">
     <WsStatus status={$wsStore.status} class="self-center" />
     <p class="ml-3 text-3xl">
-      Room: {roomName} ({$wsStore.connections === 0
-        ? "no students"
+      {$t("room")}: {roomName} ({$wsStore.connections === 0
+        ? `no ${$t("students")}`
         : $wsStore.connections === 1
-        ? "1 student"
-        : `${$wsStore.connections} students`}) -
+        ? `1 ${$t("student")}`
+        : `${$wsStore.connections} ${$t("students")}`}) -
       <a href={`/room/${roomName}`} target="_black" rel="noopener"
-        >[student view]</a
+        >[{$t("student-view")}]</a
       >
     </p>
   </div>

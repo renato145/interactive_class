@@ -1,0 +1,35 @@
+{
+  "title": "Clase interactiva",
+  "home": {
+    "description1": "La idea de usar copas viene de",
+    "description2": "acá he añadido la posibilidad de usar preguntas. Puedes encontrar el codigo fuente",
+    "link": "acá",
+    "new-room-name": "Nombre del nuevo cuarto",
+    "create-room": "Crear cuarto"
+  },
+  "teacher-view": "vista de profesor",
+  "student-view": "vista de estudiante",
+  "loading_msg": "cargando",
+  "rooms": "Cuartos",
+  "room": "Cuarto",
+  "an-error-occurred": "Un error ha sucedido",
+  "student": "estudiante",
+  "students": "estudiantes",
+  "question-title": "Título de la pregunta",
+  "option": "Opción",
+  "answers": "Respuestas",
+  "answer-option": "Respuesta",
+  "answer-options": "Opciones de respuesta",
+  "add-answer-option": "Añadir opción de respuesta",
+  "create-question": "Crear pregunta",
+  "create-new-question": "Crear nueva pregunta",
+  "cancel": "Cancelar",
+  "delete": "Eliminar",
+  "publish": "Publicar",
+  "publish-time-seconds": "Tiempo de publicación (segundos)",
+  "cups": {
+    "green-description": "Verde - Me siento cómodo con mi comprensión del tema y el ritmo de la lección.",
+    "yellow-description": "Amarillo - Estoy trabajando en comprender la lección, me podria beneficiar si el profesor reduce la velocidad o revisita el concepto en curso",
+    "red-description": "Rojo - DETENTE! No estoy entendiendo y tengo preguntas"
+  }
+}

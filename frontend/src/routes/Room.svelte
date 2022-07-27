@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onDestroy } from "svelte";
+  import { t } from "svelte-i18n";
   import type { CupColor } from "bindings/CupColor";
   import type { QuestionPublication } from "bindings/QuestionPublication";
   import QuestionViewStudent from "../components/QuestionViewStudent.svelte";
@@ -56,7 +57,7 @@
 <div>
   <div class="flex align-bottom">
     <WsStatus status={$wsStore.status} class="self-center" />
-    <p class="ml-3 text-3xl">Room: {roomName}</p>
+    <p class="ml-3 text-3xl">{$t("room")}: {roomName}</p>
   </div>
   <div class="mt-4">
     <WsError error_msg={$wsStore.error_msg} />
@@ -99,8 +100,7 @@
             chooseCup("Green");
           }}
         >
-          Green - I am comfortable with my understanding and pacing of the
-          lesson
+          {$t("cups.green-description")}
         </button>
 
         <button
@@ -109,8 +109,7 @@
             chooseCup("Yellow");
           }}
         >
-          Yellow - I am working through my understanding, I would benefit from
-          the teacher slowing down or revisiting the current concept
+          {$t("cups.yellow-description")}
         </button>
 
         <button
@@ -119,7 +118,7 @@
             chooseCup("Red");
           }}
         >
-          Red - STOP! I am not understanding and I have a question
+          {$t("cups.red-description")}
         </button>
       </div>
     </div>
