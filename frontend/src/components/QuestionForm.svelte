@@ -35,6 +35,7 @@
   <form class="mt-2" on:submit|preventDefault={submitCreateQuestion}>
     <label for="title">Question title:</label>
     <input
+      class="ml-2"
       type="text"
       id="title"
       name="title"
@@ -47,6 +48,7 @@
       <div class="mt-2">
         <label for={`option${i + 1}`}>Option {i + 1}:</label>
         <input
+          class="ml-2"
           type="text"
           id={`option${i + 1}`}
           name={`option${i + 1}`}
