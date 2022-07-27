@@ -14,7 +14,7 @@
     {:else}
       <nav class="flex items-center justify-between">
         <Link to="/">Home</Link>
-        <select bind:value={$locale} class="py-1 pl-2 border-gray-700 rounded">
+        <select bind:value={$locale} class="rounded border-gray-700 py-1 pl-2">
           {#each $locales as locale}
             <option value={locale}>{locale}</option>
           {/each}
