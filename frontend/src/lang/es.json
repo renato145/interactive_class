@@ -5,7 +5,8 @@
     "description2": "acá he añadido la posibilidad de usar preguntas. Puedes encontrar el codigo fuente",
     "link": "acá",
     "new-room-name": "Nombre del nuevo cuarto",
-    "create-room": "Crear cuarto"
+    "create-room": "Crear cuarto",
+    "delete-room": "eliminar cuarto"
   },
   "teacher-view": "vista de profesor",
   "student-view": "vista de estudiante",

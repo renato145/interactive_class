@@ -5,7 +5,8 @@
     "description2": "here I have added the feature to ask questions. You can find the source code",
     "link": "here",
     "new-room-name": "New room name",
-    "create-room": "Create room"
+    "create-room": "Create room",
+    "delete-room": "delete room"
   },
   "teacher-view": "teacher view",
   "student-view": "student view",

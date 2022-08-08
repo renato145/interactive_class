@@ -27,6 +27,15 @@
       createErrorMsg = await response.text();
     }
   };
+
+  const deleteRoom = async (roomName: string) => {
+    console.log(`deleting ${roomName}`);
+    const response = await fetch("cups/delete_room", {
+      method: 'DELETE',
+      body: roomName
+    });
+    console.log(response);
+  };
 </script>
 
 <div>
@@ -54,7 +63,12 @@
           <li class="text-lg list-disc list-inside">
             <span class="font-medium">{room}:</span>
             <Link to={`room/${room}/teacher`}>[{$t("teacher-view")}]</Link>
-            - <Link to={`room/${room}`}>[{$t("student-view")}]</Link>
+            - <Link to={`room/${room}`}>[{$t("student-view")}]</Link> -
+            <button
+              class="text-red-600 hover:text-red-800"
+              on:click={() => deleteRoom(room)}
+              >[{$t("home.delete-room")}]</button
+            >
           </li>
         {/each}
       </ul>
