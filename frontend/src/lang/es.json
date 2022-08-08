@@ -6,7 +6,8 @@
     "link": "acá",
     "new-room-name": "Nombre del nuevo cuarto",
     "create-room": "Crear cuarto",
-    "delete-room": "eliminar cuarto"
+    "delete-room": "eliminar cuarto",
+    "delete-dialog": "¿Estás seguro que quieres eliminar este cuarto?"
   },
   "teacher-view": "vista de profesor",
   "student-view": "vista de estudiante",
@@ -24,6 +25,7 @@
   "add-answer-option": "Añadir opción de respuesta",
   "create-question": "Crear pregunta",
   "create-new-question": "Crear nueva pregunta",
+  "yes": "Si",
   "cancel": "Cancelar",
   "delete": "Eliminar",
   "publish": "Publicar",

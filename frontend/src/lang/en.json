@@ -6,7 +6,8 @@
     "link": "here",
     "new-room-name": "New room name",
     "create-room": "Create room",
-    "delete-room": "delete room"
+    "delete-room": "delete room",
+    "delete-dialog": "Are you sure you want to delete this room?"
   },
   "teacher-view": "teacher view",
   "student-view": "student view",
@@ -24,6 +25,7 @@
   "add-answer-option": "Add answer option",
   "create-question": "Create question",
   "create-new-question": "Create new question",
+  "yes": "Yes",
   "cancel": "Cancel",
   "delete": "Delete",
   "publish": "Publish",

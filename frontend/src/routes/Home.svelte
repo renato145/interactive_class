@@ -88,15 +88,16 @@
             {#if showConfirmDelete === i}
               <div class="inline ml-2 font-bold">
                 <p class="inline text-red-800">
-                  Are you sure you want to delete this room?
+                  {$t("home.delete-dialog")}
                 </p>
                 <button
                   class="ml-1 text-red-600 hover:text-red-800 underline"
-                  on:click={() => deleteRoom(room)}>Yes</button
+                  on:click={() => deleteRoom(room)}>{$t("yes")}</button
                 >
                 <button
                   class="text-gray-600 hover:text-gray-800 underline"
-                  on:click={() => (showConfirmDelete = -1)}>Cancel</button
+                  on:click={() => (showConfirmDelete = -1)}
+                  >{$t("cancel")}</button
                 >
               </div>
             {/if}
