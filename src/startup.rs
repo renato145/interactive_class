@@ -30,6 +30,7 @@ impl Application {
     }
 
     pub async fn run_until_stopped(self) -> Result<(), std::io::Error> {
+        tracing::info!("Server running on port: {}", self.port);
         self.server.await
     }
 }
