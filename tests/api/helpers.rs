@@ -101,6 +101,20 @@ impl TestApp {
             .expect("Failed to execute request.")
     }
 
+    pub async fn delete_cups_room(&self, name: &str) -> CupsInfo {
+        self.api_client
+            .delete(format!("{}/cups/delete_room", &self.address))
+            .json(&serde_json::json!({ "room": name }))
+            .send()
+            .await
+            .expect("Failed to execute request.")
+            .error_for_status()
+            .unwrap()
+            .json()
+            .await
+            .unwrap()
+    }
+
     pub async fn get_cups_info(&self) -> CupsInfo {
         self.get_route("cups")
             .await

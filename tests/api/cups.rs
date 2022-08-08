@@ -48,6 +48,19 @@ async fn get_cups_info_after_rooms_are_created() {
     assert_eq!(cups_info, expected);
 }
 
+#[tokio::test]
+async fn delete_room() {
+    // Arrange
+    let app = spawn_app().await;
+    app.create_cups_room("room").await;
+
+    // Act
+    let cups_info = app.delete_cups_room("room").await;
+
+    // Assert
+    assert_eq!(cups_info.rooms.len(), 0);
+}
+
 #[actix_rt::test]
 async fn get_info_when_student_connects() {
     // Arrange
