@@ -2,7 +2,7 @@
 
 - [x] Web similar to cups.fast.ai
 	- [x] Teacher web /cups/[class]/teacher
-		- [ ] Delete room
+		- [x] Delete room
 	- [x] Student web /cups/[class]
 - [ ] Add capabilities to ask simple questions
   - [x] Create question
