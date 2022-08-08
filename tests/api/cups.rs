@@ -61,6 +61,28 @@ async fn delete_room() {
     assert_eq!(cups_info.rooms.len(), 0);
 }
 
+#[tokio::test]
+async fn delete_room_fails_on_non_existing_room() {
+    // Arrange
+    let app = spawn_app().await;
+    let room_name = "test_room";
+
+    // Act
+    let error_msg = app
+        .api_client
+        .delete(format!("{}/cups/delete_room", &app.address))
+        .json(&serde_json::json!({ "room": room_name }))
+        .send()
+        .await
+        .expect("Failed to execute request.")
+        .text()
+        .await
+        .unwrap();
+
+    // Assert
+    assert_eq!(error_msg, format!("Room {room_name:?} doesn't exists."));
+}
+
 #[actix_rt::test]
 async fn get_info_when_student_connects() {
     // Arrange
