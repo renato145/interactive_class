@@ -145,19 +145,18 @@ pub async fn spawn_app_with_timeout(timeout: u64) -> TestApp {
         .await
         .expect("Failed to build application.");
     let application_port = application.port();
-    let _ = tokio::spawn(application.run_until_stopped());
+    tokio::spawn(application.run_until_stopped());
 
     let client = reqwest::Client::builder()
         .redirect(reqwest::redirect::Policy::none())
         .build()
         .unwrap();
 
-    let test_app = TestApp {
+    TestApp {
         address: format!("http://localhost:{}", application_port),
         port: application_port,
         api_client: client,
-    };
-    test_app
+    }
 }
 
 pub async fn spawn_app() -> TestApp {

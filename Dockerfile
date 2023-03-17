@@ -12,7 +12,7 @@ RUN pnpm run build
 ##################
 # 2 - RUST BUILD #
 ##################
-FROM lukemathwalker/cargo-chef:latest-rust-1.62 as chef
+FROM lukemathwalker/cargo-chef:latest-rust-1.68 as chef
 WORKDIR /app
 
 # Compute lock-file

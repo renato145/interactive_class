@@ -133,9 +133,8 @@ impl QuestionState {
 
     /// Get #answers for each option
     pub fn summary(&self) -> Vec<usize> {
-        let counts = self.answers.values().into_iter().counts();
+        let counts = self.answers.values().counts();
         (0..self.options.len())
-            .into_iter()
             .map(|i| counts.get(&i).cloned().unwrap_or(0))
             .collect()
     }

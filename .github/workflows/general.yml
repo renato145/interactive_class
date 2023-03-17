@@ -90,27 +90,3 @@ jobs:
         uses: actions-rs/tarpaulin@v0.1
         with:
           args: '--ignore-tests --avoid-cfg-tarpaulin'
-
-  heroku:
-    name: Heroku deploy
-    runs-on: ubuntu-latest
-    env:
-      HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-      
-      - name: Build docker image
-        run: docker build -t registry.heroku.com/${{ secrets.HEROKU_APP }}/web:latest .
-
-      - name: Docker image info
-        run: docker images
-
-      - name: Login to container registry
-        run: heroku container:login
-
-      - name: Push docker image
-        run: docker push registry.heroku.com/${{ secrets.HEROKU_APP }}/web
-
-      - name: Release
-        run: heroku container:release -a ${{ secrets.HEROKU_APP }} web

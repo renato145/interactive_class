@@ -33,7 +33,10 @@ build: refresh-bindings
   cd frontend && pnpm run build
 
 docker-build:
-  docker build -t interactive-class .
+  DOCKER_BUILDKIT=1 docker build -t interactive-class .
+
+docker-run:
+  docker run -p 8000:8000 interactive-class
 
 run:
   cargo run --release | bunyan
